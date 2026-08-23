@@ -16,9 +16,7 @@ export function SideNavBar() {
     <nav className="hidden md:flex flex-col h-full p-6 bg-surface-container-lowest border-r border-outline-variant/30 shadow-lg fixed left-0 top-0 bottom-0 w-72 z-20">
       {/* Brand Logo Header */}
       <div className="mb-8 flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white font-extrabold text-lg shadow-md shadow-primary/20">
-          AL
-        </div>
+        <img src="/logo.png" alt="AgendaLudoia Logo" className="w-10 h-10 object-contain drop-shadow-sm" />
         <div>
           <h1 className="font-extrabold text-xl text-primary tracking-tight">AgendaLudoia</h1>
           <p className="text-xs text-on-surface-variant font-medium">Portal Clínico</p>
