@@ -1,78 +1,79 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-/* ─── Stitch Material 3 Clinical Tokens ──────────────────────────────────── */
+@import "tailwindcss";
 
 @theme {
   --color-primary: #004870;
   --color-primary-container: #006194;
-  --color-primary-fixed: #cce5ff;
-  --color-primary-fixed-dim: #93ccff;
   --color-on-primary: #ffffff;
   --color-on-primary-container: #b2d9ff;
-  --color-on-primary-fixed: #001d31;
-
+  
   --color-secondary: #006c49;
   --color-secondary-container: #9af2c5;
-  --color-secondary-fixed: #9df4c8;
   --color-on-secondary: #ffffff;
   --color-on-secondary-container: #0c714d;
-
-  --color-tertiary: #623c00;
-  --color-tertiary-container: #825100;
-  --color-tertiary-fixed: #ffddb8;
-
+  
   --color-surface: #f7f9fb;
   --color-surface-dim: #d8dadc;
   --color-surface-bright: #f7f9fb;
-  --color-surface-variant: #e0e3e5;
-  --color-surface-container-lowest: #ffffff;
-  --color-surface-container-low: #f2f4f6;
   --color-surface-container: #eceef0;
+  --color-surface-container-low: #f2f4f6;
   --color-surface-container-high: #e6e8ea;
   --color-surface-container-highest: #e0e3e5;
-
-  --color-background: #f7f9fb;
-  --color-on-background: #191c1e;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-variant: #e0e3e5;
   --color-on-surface: #191c1e;
   --color-on-surface-variant: #40474f;
-
-  --color-outline: #717880;
+  
+  --color-glass-surface: rgba(255, 255, 255, 0.7);
+  --color-clinical-blue-glow: rgba(2, 132, 199, 0.08);
   --color-outline-variant: #c0c7d0;
-
+  --color-outline: #717880;
+  --color-background: #f7f9fb;
+  --color-on-background: #191c1e;
+  
   --color-pain-low: #22c55e;
   --color-pain-mid: #eab308;
   --color-pain-high: #ef4444;
-
+  
   --color-error: #ba1a1a;
   --color-error-container: #ffdad6;
   --color-on-error: #ffffff;
+  --color-on-error-container: #93000a;
 
-  --color-glass-surface: rgba(255, 255, 255, 0.75);
+  --font-body-md: Inter, sans-serif;
+  --font-headline-md: Manrope, sans-serif;
+  --font-headline-lg: Manrope, sans-serif;
+  --font-headline-xl: Manrope, sans-serif;
+  --font-label-sm: Inter, sans-serif;
+  --font-label-xs: Inter, sans-serif;
 }
 
-/* Custom utilities from Stitch */
+body {
+  background-color: var(--color-background);
+  color: var(--color-on-background);
+  font-family: var(--font-body-md);
+  -webkit-font-smoothing: antialiased;
+}
+
+.glass-panel {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 4px 30px rgba(2, 132, 199, 0.05);
+}
+
 .clinical-shadow {
   box-shadow: 0 20px 20px -4px rgba(2, 132, 199, 0.08);
 }
 
-.glass-panel {
-  background-color: var(--color-glass-surface);
-  backdrop-filter: blur(16px);
-}
-
-/* Material Symbols Outlined CSS Fallback Rules */
 .material-symbols-outlined {
   font-family: 'Material Symbols Outlined';
   font-weight: normal;
   font-style: normal;
   font-size: 24px;
-  display: inline-block;
   line-height: 1;
-  text-transform: none;
-  letter-spacing: normal;
-  word-wrap: normal;
+  display: inline-block;
   white-space: nowrap;
+  word-wrap: normal;
   direction: ltr;
 }
