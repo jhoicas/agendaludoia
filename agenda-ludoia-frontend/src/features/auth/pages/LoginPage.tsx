@@ -68,7 +68,11 @@ export function LoginPage() {
         <div className="bg-glass-surface backdrop-blur-md rounded-2xl shadow-[0_20px_20px_-4px_rgba(2,132,199,0.08)] border border-outline-variant/30 p-8 w-full">
           {/* Logo & Brand Header */}
           <div className="flex flex-col items-center mb-8">
-            <img src="/logo.png" alt="AgendaLudoia Logo" className="w-16 h-16 object-contain mb-3 drop-shadow-md" />
+            <img
+              src="/logo.png"
+              alt="AgendaLudoia Logo"
+              className="w-28 h-28 object-contain mb-3 drop-shadow-lg transition-transform hover:scale-105"
+            />
             <h1 className="font-extrabold text-3xl text-primary tracking-tight">AgendaLudoia</h1>
             <p className="text-sm text-on-surface-variant text-center mt-1">Clinical Precision meets Human Warmth.</p>
           </div>
