@@ -1,0 +1,174 @@
+syntax = "proto3";
+
+package agendaLudoia.v1;
+
+option go_package = "github.com/agendaLudoia/backend/gen/proto/go/v1;v1";
+
+import "google/protobuf/timestamp.proto";
+
+// ─── Pain Map Service ───────────────────────────────────────────────────────
+// Manages ultra-detailed anatomical pain observations with support for
+// multiple views, depth layers, and sub-regional muscle/ligament targeting.
+
+service PainMapService {
+  // Save a pain observation with anatomical points.
+  rpc SavePainObservation(SavePainObservationRequest) returns (SavePainObservationResponse);
+
+  // Get the longitudinal pain history for a patient.
+  rpc GetPainHistory(GetPainHistoryRequest) returns (GetPainHistoryResponse);
+
+  // Get a specific pain observation by ID.
+  rpc GetPainObservation(GetPainObservationRequest) returns (GetPainObservationResponse);
+
+  // List all predefined anatomical regions available for selection.
+  rpc ListAnatomicalRegions(ListAnatomicalRegionsRequest) returns (ListAnatomicalRegionsResponse);
+}
+
+// ─── Anatomical View Enum ───────────────────────────────────────────────────
+
+enum AnatomicalView {
+  ANATOMICAL_VIEW_UNSPECIFIED = 0;
+  ANATOMICAL_VIEW_ANTERIOR = 1;
+  ANATOMICAL_VIEW_POSTERIOR = 2;
+  ANATOMICAL_VIEW_LATERAL_LEFT = 3;
+  ANATOMICAL_VIEW_LATERAL_RIGHT = 4;
+  ANATOMICAL_VIEW_JOINT_DETAIL = 5;
+}
+
+// ─── Anatomical Layer Enum ──────────────────────────────────────────────────
+
+enum AnatomicalLayer {
+  ANATOMICAL_LAYER_UNSPECIFIED = 0;
+  ANATOMICAL_LAYER_CUTANEOUS = 1;
+  ANATOMICAL_LAYER_SUPERFICIAL_MUSCULAR = 2;
+  ANATOMICAL_LAYER_DEEP_MUSCULAR = 3;
+  ANATOMICAL_LAYER_LIGAMENT_ARTICULAR = 4;
+  ANATOMICAL_LAYER_TRIGGER_POINTS = 5;
+}
+
+// ─── Pain Type Enum ─────────────────────────────────────────────────────────
+
+enum PainType {
+  PAIN_TYPE_UNSPECIFIED = 0;
+  PAIN_TYPE_NOCICEPTIVE_ACUTE = 1;
+  PAIN_TYPE_NOCICEPTIVE_CHRONIC = 2;
+  PAIN_TYPE_NEUROPATHIC = 3;
+  PAIN_TYPE_REFERRED = 4;
+  PAIN_TYPE_MECHANICAL = 5;
+}
+
+// ─── Anatomical Body Region ─────────────────────────────────────────────────
+// Pre-defined anatomical regions for the pain map.
+// Covers the full musculoskeletal system required for physiotherapy.
+
+enum BodyRegionCategory {
+  BODY_REGION_CATEGORY_UNSPECIFIED = 0;
+  BODY_REGION_CATEGORY_HEAD_NECK = 1;
+  BODY_REGION_CATEGORY_SHOULDER_UPPER_LIMB = 2;
+  BODY_REGION_CATEGORY_TRUNK_SPINE = 3;
+  BODY_REGION_CATEGORY_HIP_LOWER_LIMB = 4;
+}
+
+// ─── Core Messages ──────────────────────────────────────────────────────────
+
+// Normalized 2D coordinates on the anatomical canvas (0.0 to 1.0).
+message Coordinates {
+  double x = 1;
+  double y = 2;
+}
+
+// A single pain point on the anatomical map.
+message PainPoint {
+  // Unique region identifier, e.g., "KNEE_R_ACL", "SHOULDER_L_SUPRASPINATUS"
+  string region_id = 1;
+  
+  // Human-readable name, e.g., "Ligamento Cruzado Anterior - Rodilla Derecha"
+  string region_name = 2;
+  
+  // EVA pain score (0-10)
+  int32 pain_score_eva = 3;
+  
+  // Classification of pain type
+  PainType pain_type = 4;
+  
+  // Whether this point is a myofascial trigger point
+  bool trigger_point = 5;
+  
+  // List of motion restrictions, e.g., ["FLEXION_LIMITED_90_DEG", "ROTATION_LIMITED"]
+  repeated string motion_restriction = 6;
+  
+  // Position on the canvas (normalized 0.0-1.0)
+  Coordinates coordinates = 7;
+}
+
+// The full anatomical observation payload (FHIR-compliant structure).
+message AnatomicalObservation {
+  AnatomicalView view = 1;
+  AnatomicalLayer layer = 2;
+  repeated PainPoint points = 3;
+}
+
+// Complete pain observation entity with metadata.
+message PainObservation {
+  string id = 1;
+  string tenant_id = 2;
+  string medical_record_id = 3;
+  string patient_id = 4;
+  AnatomicalObservation observation_data = 5;
+  google.protobuf.Timestamp created_at = 6;
+}
+
+// Pre-defined anatomical region for the UI region picker.
+message AnatomicalRegion {
+  string region_id = 1;
+  string region_name = 2;
+  BodyRegionCategory category = 3;
+  AnatomicalView default_view = 4;
+  AnatomicalLayer default_layer = 5;
+  Coordinates default_coordinates = 6;
+}
+
+// ─── Request/Response Messages ──────────────────────────────────────────────
+
+message SavePainObservationRequest {
+  string medical_record_id = 1;
+  string patient_id = 2;
+  AnatomicalObservation observation = 3;
+}
+
+message SavePainObservationResponse {
+  PainObservation observation = 1;
+}
+
+message GetPainHistoryRequest {
+  string patient_id = 1;
+  google.protobuf.Timestamp date_from = 2;
+  google.protobuf.Timestamp date_to = 3;
+  int32 page_size = 4;
+  string page_token = 5;
+}
+
+message GetPainHistoryResponse {
+  repeated PainObservation observations = 1;
+  string next_page_token = 2;
+  int32 total_count = 3;
+}
+
+message GetPainObservationRequest {
+  string observation_id = 1;
+}
+
+message GetPainObservationResponse {
+  PainObservation observation = 1;
+}
+
+message ListAnatomicalRegionsRequest {
+  // Optional filter by category
+  BodyRegionCategory category_filter = 1;
+  // Optional filter by view
+  AnatomicalView view_filter = 2;
+}
+
+message ListAnatomicalRegionsResponse {
+  repeated AnatomicalRegion regions = 1;
+}

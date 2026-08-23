@@ -1,0 +1,79 @@
+name: CI/CD Pipeline - AgendaLudoia Production Build
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  # Job 1: Test & Quality Gate
+  test:
+    name: Run Automated TDD Test Suites
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24'
+          cache-dependency-path: agenda-ludoia-backend/go.sum
+
+      - name: Run Backend TDD Unit Tests
+        run: |
+          cd agenda-ludoia-backend
+          go test ./... -v
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: agenda-ludoia-frontend/package-lock.json
+
+      - name: Install Frontend Dependencies
+        run: |
+          cd agenda-ludoia-frontend
+          npm ci
+
+      - name: Run Frontend Vitest TDD Tests
+        run: |
+          cd agenda-ludoia-frontend
+          npm run test
+
+      - name: Verify TypeScript Types
+        run: |
+          cd agenda-ludoia-frontend
+          npx tsc -b --noEmit
+
+  # Job 2: Build Docker Containers
+  build:
+    name: Build Production Docker Images
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Backend Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./agenda-ludoia-backend
+          file: ./agenda-ludoia-backend/Dockerfile
+          push: false
+          tags: agendaludoia-backend:latest
+
+      - name: Build Frontend Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./agenda-ludoia-frontend
+          file: ./agenda-ludoia-frontend/Dockerfile
+          push: false
+          tags: agendaludoia-frontend:latest

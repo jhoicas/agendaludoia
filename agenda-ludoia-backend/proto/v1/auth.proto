@@ -1,0 +1,67 @@
+syntax = "proto3";
+
+package agendaLudoia.v1;
+
+option go_package = "github.com/agendaLudoia/backend/gen/proto/go/v1;v1";
+
+// ─── Auth Service ───────────────────────────────────────────────────────────
+// Wraps Supabase Auth operations for token validation and user context.
+// Most auth operations are handled directly by Supabase Auth (Magic Link, OTP).
+// This service provides backend-side token verification and claim extraction.
+
+service AuthService {
+  // Validate a JWT token and return the extracted claims.
+  rpc ValidateToken(ValidateTokenRequest) returns (ValidateTokenResponse);
+
+  // Refresh an expired JWT token.
+  rpc RefreshToken(RefreshTokenRequest) returns (RefreshTokenResponse);
+
+  // Get the current user's profile and permissions.
+  rpc GetCurrentUser(GetCurrentUserRequest) returns (GetCurrentUserResponse);
+}
+
+// ─── Enums ──────────────────────────────────────────────────────────────────
+
+enum UserRole {
+  USER_ROLE_UNSPECIFIED = 0;
+  USER_ROLE_SUPER_ADMIN = 1;
+  USER_ROLE_CLINIC_ADMIN = 2;
+  USER_ROLE_PHYSIO = 3;
+  USER_ROLE_PATIENT = 4;
+}
+
+// ─── Messages ───────────────────────────────────────────────────────────────
+
+message UserClaims {
+  string user_id = 1;
+  string tenant_id = 2;
+  UserRole role = 3;
+  string email = 4;
+  string full_name = 5;
+}
+
+message ValidateTokenRequest {
+  string token = 1;
+}
+
+message ValidateTokenResponse {
+  bool valid = 1;
+  UserClaims claims = 2;
+  string error_message = 3;
+}
+
+message RefreshTokenRequest {
+  string refresh_token = 1;
+}
+
+message RefreshTokenResponse {
+  string access_token = 1;
+  string refresh_token = 2;
+  int64 expires_in = 3;
+}
+
+message GetCurrentUserRequest {}
+
+message GetCurrentUserResponse {
+  UserClaims claims = 1;
+}

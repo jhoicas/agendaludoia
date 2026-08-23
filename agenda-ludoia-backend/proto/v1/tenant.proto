@@ -1,0 +1,99 @@
+syntax = "proto3";
+
+package agendaLudoia.v1;
+
+option go_package = "github.com/agendaLudoia/backend/gen/proto/go/v1;v1";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/struct.proto";
+
+// ─── Tenant Management Service ──────────────────────────────────────────────
+// Manages clinic/organization tenants in the SaaS platform.
+// Only accessible by SuperAdmin users.
+
+service TenantService {
+  // Create a new tenant (clinic/organization).
+  rpc CreateTenant(CreateTenantRequest) returns (CreateTenantResponse);
+
+  // Get tenant details by ID.
+  rpc GetTenant(GetTenantRequest) returns (GetTenantResponse);
+
+  // Update tenant settings (cancellation window, slot duration, etc.).
+  rpc UpdateTenantSettings(UpdateTenantSettingsRequest) returns (UpdateTenantSettingsResponse);
+
+  // List all tenants (SuperAdmin only).
+  rpc ListTenants(ListTenantsRequest) returns (ListTenantsResponse);
+}
+
+// ─── Enums ──────────────────────────────────────────────────────────────────
+
+enum TenantPlan {
+  TENANT_PLAN_UNSPECIFIED = 0;
+  TENANT_PLAN_FREE = 1;
+  TENANT_PLAN_STARTER = 2;
+  TENANT_PLAN_PROFESSIONAL = 3;
+  TENANT_PLAN_ENTERPRISE = 4;
+}
+
+// ─── Messages ───────────────────────────────────────────────────────────────
+
+message TenantSettings {
+  string timezone = 1;
+  int32 default_slot_duration_minutes = 2;
+  int32 cancellation_window_hours = 3;
+  bool allow_patient_self_book = 4;
+  bool no_show_penalty_enabled = 5;
+  int32 no_show_penalty_amount_cents = 6;
+}
+
+message Tenant {
+  string id = 1;
+  string name = 2;
+  string slug = 3;
+  TenantPlan plan = 4;
+  TenantSettings settings = 5;
+  google.protobuf.Timestamp created_at = 6;
+  google.protobuf.Timestamp updated_at = 7;
+}
+
+// ─── Request/Response Messages ──────────────────────────────────────────────
+
+message CreateTenantRequest {
+  string name = 1;
+  string slug = 2;
+  TenantPlan plan = 3;
+  TenantSettings settings = 4;
+}
+
+message CreateTenantResponse {
+  Tenant tenant = 1;
+}
+
+message GetTenantRequest {
+  string tenant_id = 1;
+}
+
+message GetTenantResponse {
+  Tenant tenant = 1;
+}
+
+message UpdateTenantSettingsRequest {
+  string tenant_id = 1;
+  TenantSettings settings = 2;
+}
+
+message UpdateTenantSettingsResponse {
+  Tenant tenant = 1;
+}
+
+message ListTenantsRequest {
+  int32 page_size = 1;
+  string page_token = 2;
+  TenantPlan plan_filter = 3;
+}
+
+message ListTenantsResponse {
+  repeated Tenant tenants = 1;
+  string next_page_token = 2;
+  int32 total_count = 3;
+}

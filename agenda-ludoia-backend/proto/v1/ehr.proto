@@ -1,0 +1,172 @@
+syntax = "proto3";
+
+package agendaLudoia.v1;
+
+option go_package = "github.com/agendaLudoia/backend/gen/proto/go/v1;v1";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/struct.proto";
+
+// ─── EHR (Electronic Health Record) Service ─────────────────────────────────
+
+service EHRService {
+  // Create a new medical record for a clinical encounter.
+  rpc CreateMedicalRecord(CreateMedicalRecordRequest) returns (CreateMedicalRecordResponse);
+
+  // Get a specific medical record by ID.
+  rpc GetMedicalRecord(GetMedicalRecordRequest) returns (GetMedicalRecordResponse);
+
+  // Get the full longitudinal patient history (50-60 evaluations/year).
+  rpc GetPatientHistory(GetPatientHistoryRequest) returns (GetPatientHistoryResponse);
+
+  // Add or update a persistent medical alert for a patient.
+  rpc AddMedicalAlert(AddMedicalAlertRequest) returns (AddMedicalAlertResponse);
+
+  // Get all active alerts for a patient (shown as banners during sessions).
+  rpc GetActiveAlerts(GetActiveAlertsRequest) returns (GetActiveAlertsResponse);
+}
+
+// ─── Enums ──────────────────────────────────────────────────────────────────
+
+enum AlertSeverity {
+  ALERT_SEVERITY_UNSPECIFIED = 0;
+  ALERT_SEVERITY_INFO = 1;
+  ALERT_SEVERITY_WARNING = 2;
+  ALERT_SEVERITY_CRITICAL = 3;
+}
+
+enum AlertCategory {
+  ALERT_CATEGORY_UNSPECIFIED = 0;
+  ALERT_CATEGORY_SURGICAL_HISTORY = 1;
+  ALERT_CATEGORY_ALLERGY = 2;
+  ALERT_CATEGORY_CONTRAINDICATION = 3;
+  ALERT_CATEGORY_CHRONIC_CONDITION = 4;
+  ALERT_CATEGORY_MEDICATION = 5;
+}
+
+// ─── Biomechanical Metrics Messages ─────────────────────────────────────────
+
+message ROMMeasurement {
+  string joint = 1;           // e.g., "shoulder", "knee", "cervical_spine"
+  string movement = 2;        // e.g., "flexion", "extension", "rotation"
+  string side = 3;            // "left", "right", "bilateral"
+  float degrees = 4;          // Range of Motion in degrees
+  bool is_normal = 5;
+}
+
+message ROMData {
+  repeated ROMMeasurement measurements = 1;
+}
+
+message StrengthAssessment {
+  string muscle_group = 1;    // e.g., "quadriceps", "hamstrings", "deltoid"
+  string side = 2;
+  float grade = 3;            // Daniels scale 0-5 (allows half grades 3.5)
+}
+
+message MuscleStrength {
+  repeated StrengthAssessment assessments = 1;
+}
+
+message BodyComposition {
+  float muscle_mass_percent = 1;
+  float fat_mass_percent = 2;
+  float weight_kg = 3;
+  float height_cm = 4;
+  float bmi = 5;
+}
+
+message FunctionalTest {
+  string test_name = 1;       // e.g., "Single Leg Hop", "Y-Balance", "FMS"
+  float score = 2;
+  string unit = 3;            // e.g., "cm", "seconds", "score"
+  bool is_normal = 4;
+  string notes = 5;
+}
+
+// ─── Medical Alert ──────────────────────────────────────────────────────────
+
+message MedicalAlert {
+  string id = 1;
+  AlertCategory category = 2;
+  AlertSeverity severity = 3;
+  string message = 4;          // e.g., "Reconstrucción de LCA en rodilla derecha con injerto HTH"
+  bool is_active = 5;
+}
+
+// ─── Medical Record ─────────────────────────────────────────────────────────
+
+message MedicalRecord {
+  string id = 1;
+  string tenant_id = 2;
+  string patient_id = 3;
+  string professional_id = 4;
+  string appointment_id = 5;
+  string chief_complaint = 6;
+  ROMData rom_data = 7;
+  MuscleStrength muscle_strength = 8;
+  BodyComposition body_composition = 9;
+  repeated FunctionalTest functional_tests = 10;
+  repeated MedicalAlert alerts = 11;
+  string notes = 12;
+  google.protobuf.Timestamp created_at = 13;
+}
+
+// ─── Request/Response Messages ──────────────────────────────────────────────
+
+message CreateMedicalRecordRequest {
+  string patient_id = 1;
+  string professional_id = 2;
+  string appointment_id = 3;
+  string chief_complaint = 4;
+  ROMData rom_data = 5;
+  MuscleStrength muscle_strength = 6;
+  BodyComposition body_composition = 7;
+  repeated FunctionalTest functional_tests = 8;
+  string notes = 9;
+}
+
+message CreateMedicalRecordResponse {
+  MedicalRecord record = 1;
+}
+
+message GetMedicalRecordRequest {
+  string record_id = 1;
+}
+
+message GetMedicalRecordResponse {
+  MedicalRecord record = 1;
+}
+
+message GetPatientHistoryRequest {
+  string patient_id = 1;
+  google.protobuf.Timestamp date_from = 2;
+  google.protobuf.Timestamp date_to = 3;
+  int32 page_size = 4;
+  string page_token = 5;
+}
+
+message GetPatientHistoryResponse {
+  repeated MedicalRecord records = 1;
+  string next_page_token = 2;
+  int32 total_count = 3;
+}
+
+message AddMedicalAlertRequest {
+  string patient_id = 1;
+  AlertCategory category = 2;
+  AlertSeverity severity = 3;
+  string message = 4;
+}
+
+message AddMedicalAlertResponse {
+  MedicalAlert alert = 1;
+}
+
+message GetActiveAlertsRequest {
+  string patient_id = 1;
+}
+
+message GetActiveAlertsResponse {
+  repeated MedicalAlert alerts = 1;
+}

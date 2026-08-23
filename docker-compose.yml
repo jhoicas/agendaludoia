@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  # Backend Go Service
+  backend:
+    build:
+      context: ./agenda-ludoia-backend
+      dockerfile: Dockerfile
+    container_name: agendaludoia-backend
+    restart: unless-stopped
+    ports:
+      - "50051:50051"
+    environment:
+      - APP_ENV=production
+      - GRPC_PORT=50051
+      - SUPABASE_DB_URL=${SUPABASE_DB_URL:-postgresql://postgres.uyoletsypfhrsehhkofp:YoinerDb1992@aws-0-us-west-2.pooler.supabase.com:6543/postgres?sslmode=require}
+    networks:
+      - agendaludoia-network
+
+  # Frontend React Service
+  frontend:
+    build:
+      context: ./agenda-ludoia-frontend
+      dockerfile: Dockerfile
+    container_name: agendaludoia-frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    environment:
+      - VITE_SUPABASE_URL=${VITE_SUPABASE_URL:-https://uyoletsypfhrsehhkofp.supabase.co}
+      - VITE_SUPABASE_ANON_KEY=${VITE_SUPABASE_ANON_KEY:-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.placeholder}
+    depends_on:
+      - backend
+    networks:
+      - agendaludoia-network
+
+networks:
+  agendaludoia-network:
+    driver: bridge

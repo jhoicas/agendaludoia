@@ -1,0 +1,132 @@
+syntax = "proto3";
+
+package agendaLudoia.v1;
+
+option go_package = "github.com/agendaLudoia/backend/gen/proto/go/v1;v1";
+
+import "google/protobuf/timestamp.proto";
+
+// ─── Appointment Service ────────────────────────────────────────────────────
+
+service AppointmentService {
+  // Schedule a new appointment for a patient with a professional.
+  rpc ScheduleAppointment(ScheduleAppointmentRequest) returns (ScheduleAppointmentResponse);
+
+  // Cancel an existing appointment (subject to 24-hour business rule).
+  rpc CancelAppointment(CancelAppointmentRequest) returns (CancelAppointmentResponse);
+
+  // Reschedule an existing appointment (subject to 24-hour business rule).
+  rpc RescheduleAppointment(RescheduleAppointmentRequest) returns (RescheduleAppointmentResponse);
+
+  // List available time slots for a professional on a given date range.
+  rpc ListAvailableSlots(ListAvailableSlotsRequest) returns (ListAvailableSlotsResponse);
+
+  // Get details of a specific appointment.
+  rpc GetAppointment(GetAppointmentRequest) returns (GetAppointmentResponse);
+
+  // List appointments for a patient or professional.
+  rpc ListAppointments(ListAppointmentsRequest) returns (ListAppointmentsResponse);
+}
+
+// ─── Enums ──────────────────────────────────────────────────────────────────
+
+enum AppointmentStatus {
+  APPOINTMENT_STATUS_UNSPECIFIED = 0;
+  APPOINTMENT_STATUS_BOOKED = 1;
+  APPOINTMENT_STATUS_CONFIRMED = 2;
+  APPOINTMENT_STATUS_CANCELLED = 3;
+  APPOINTMENT_STATUS_NO_SHOW = 4;
+  APPOINTMENT_STATUS_COMPLETED = 5;
+}
+
+// ─── Messages ───────────────────────────────────────────────────────────────
+
+message Appointment {
+  string id = 1;
+  string tenant_id = 2;
+  string patient_id = 3;
+  string professional_id = 4;
+  google.protobuf.Timestamp start_time = 5;
+  google.protobuf.Timestamp end_time = 6;
+  AppointmentStatus status = 7;
+  string cancellation_reason = 8;
+  google.protobuf.Timestamp created_at = 9;
+  google.protobuf.Timestamp updated_at = 10;
+}
+
+message TimeSlot {
+  google.protobuf.Timestamp start_time = 1;
+  google.protobuf.Timestamp end_time = 2;
+  bool is_available = 3;
+}
+
+// ─── Request/Response Messages ──────────────────────────────────────────────
+
+message ScheduleAppointmentRequest {
+  string patient_id = 1;
+  string professional_id = 2;
+  google.protobuf.Timestamp start_time = 3;
+  google.protobuf.Timestamp end_time = 4;
+}
+
+message ScheduleAppointmentResponse {
+  Appointment appointment = 1;
+}
+
+message CancelAppointmentRequest {
+  string appointment_id = 1;
+  string reason = 2;
+  // Client must send the current timestamp for 24h rule validation
+  google.protobuf.Timestamp action_time = 3;
+}
+
+message CancelAppointmentResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message RescheduleAppointmentRequest {
+  string appointment_id = 1;
+  google.protobuf.Timestamp new_start_time = 2;
+  google.protobuf.Timestamp new_end_time = 3;
+  google.protobuf.Timestamp action_time = 4;
+}
+
+message RescheduleAppointmentResponse {
+  Appointment appointment = 1;
+}
+
+message ListAvailableSlotsRequest {
+  string professional_id = 1;
+  google.protobuf.Timestamp date_from = 2;
+  google.protobuf.Timestamp date_to = 3;
+  int32 slot_duration_minutes = 4;
+}
+
+message ListAvailableSlotsResponse {
+  repeated TimeSlot slots = 1;
+}
+
+message GetAppointmentRequest {
+  string appointment_id = 1;
+}
+
+message GetAppointmentResponse {
+  Appointment appointment = 1;
+}
+
+message ListAppointmentsRequest {
+  string patient_id = 1;
+  string professional_id = 2;
+  google.protobuf.Timestamp date_from = 3;
+  google.protobuf.Timestamp date_to = 4;
+  AppointmentStatus status_filter = 5;
+  int32 page_size = 6;
+  string page_token = 7;
+}
+
+message ListAppointmentsResponse {
+  repeated Appointment appointments = 1;
+  string next_page_token = 2;
+  int32 total_count = 3;
+}
