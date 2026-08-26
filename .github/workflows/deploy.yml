@@ -77,3 +77,21 @@ jobs:
           file: ./agenda-ludoia-frontend/Dockerfile
           push: false
           tags: agendaludoia-frontend:latest
+
+  # Job 3: Deploy to VPS
+  deploy:
+    name: Deploy to DigitalOcean Droplet
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Execute Remote SSH Commands
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          password: ${{ secrets.VPS_PASSWORD }}
+          script: |
+            cd ~/agendaludoia
+            git pull origin main
+            docker-compose up --build -d
