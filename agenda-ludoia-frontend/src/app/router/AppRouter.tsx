@@ -3,6 +3,10 @@ import { LoginPage } from '../../features/auth/pages/LoginPage';
 import { SuperAdminDashboardPage } from '../../features/dashboard/pages/SuperAdminDashboardPage';
 import { DemoPainMapPage } from '../../features/pain-map/pages/DemoPainMapPage';
 import { PatientPortalPage } from '../../features/scheduling/pages/PatientPortalPage';
+import { PatientsPage } from '../../features/patients/pages/PatientsPage';
+import { CalendarPage } from '../../features/scheduling/pages/CalendarPage';
+import { AnalyticsPage } from '../../features/analytics/pages/AnalyticsPage';
+import { SettingsPage } from '../../features/settings/pages/SettingsPage';
 import { ProtectedRoute } from '../ProtectedRoute';
 import { useAuth } from '../providers/AuthProvider';
 
@@ -41,26 +45,42 @@ export function AppRouter() {
           }
         />
         <Route
-          path="/pain-map"
+          path="/pacientes"
           element={
-            <ProtectedRoute allowedRoles={['super_admin', 'clinic_admin', 'physio']}>
+            <ProtectedRoute>
+              <PatientsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/calendario"
+          element={
+            <ProtectedRoute>
+              <CalendarPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/mapa-dolor"
+          element={
+            <ProtectedRoute allowedRoles={['super_admin', 'clinic_admin', 'physio', 'general_doctor', 'nutritionist']}>
               <DemoPainMapPage />
             </ProtectedRoute>
           }
         />
         <Route
-          path="/appointments"
+          path="/analiticas"
           element={
             <ProtectedRoute>
-              <PatientPortalPage />
+              <AnalyticsPage />
             </ProtectedRoute>
           }
         />
         <Route
-          path="/appointments/new"
+          path="/configuracion"
           element={
             <ProtectedRoute>
-              <PatientPortalPage />
+              <SettingsPage />
             </ProtectedRoute>
           }
         />

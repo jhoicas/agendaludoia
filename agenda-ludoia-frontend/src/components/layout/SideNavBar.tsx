@@ -1,15 +1,13 @@
-import { Link, useLocation } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 
 export function SideNavBar() {
-  const location = useLocation();
-
   const navItems = [
     { name: 'Dashboard', path: '/dashboard', icon: 'dashboard' },
-    { name: 'Pacientes', path: '/patients', icon: 'group' },
-    { name: 'Calendario', path: '/appointments', icon: 'calendar_today' },
-    { name: 'Mapa de Dolor', path: '/pain-map', icon: 'accessibility_new' },
-    { name: 'Analíticas', path: '/analytics', icon: 'analytics' },
-    { name: 'Configuración', path: '/settings', icon: 'settings' },
+    { name: 'Pacientes', path: '/pacientes', icon: 'group' },
+    { name: 'Calendario', path: '/calendario', icon: 'calendar_today' },
+    { name: 'Mapa de Dolor', path: '/mapa-dolor', icon: 'accessibility_new' },
+    { name: 'Analíticas', path: '/analiticas', icon: 'analytics' },
+    { name: 'Configuración', path: '/configuracion', icon: 'settings' },
   ];
 
   return (
@@ -25,7 +23,7 @@ export function SideNavBar() {
 
       {/* New Appointment Action Button */}
       <Link
-        to="/appointments/new"
+        to="/calendario"
         className="mb-6 bg-primary text-on-primary font-semibold text-sm py-3 px-4 rounded-full hover:bg-primary-container hover:text-on-primary-container transition-all shadow-md shadow-primary/10 flex items-center justify-center gap-2"
       >
         <span className="material-symbols-outlined text-xl">add</span>
@@ -35,24 +33,23 @@ export function SideNavBar() {
       {/* Nav List */}
       <div className="flex-1 overflow-y-auto">
         <ul className="space-y-1.5">
-          {navItems.map((item) => {
-            const isActive = location.pathname === item.path;
-            return (
-              <li key={item.path}>
-                <Link
-                  to={item.path}
-                  className={`flex items-center gap-3 p-3 rounded-xl text-sm transition-all font-medium ${
+          {navItems.map((item) => (
+            <li key={item.path}>
+              <NavLink
+                to={item.path}
+                className={({ isActive }) =>
+                  `flex items-center gap-3 p-3 rounded-xl text-sm transition-all font-medium ${
                     isActive
                       ? 'bg-primary-container text-on-primary-container font-bold shadow-sm'
                       : 'text-on-surface-variant hover:bg-surface-container-low hover:text-primary'
-                  }`}
-                >
-                  <span className="material-symbols-outlined text-xl">{item.icon}</span>
-                  {item.name}
-                </Link>
-              </li>
-            );
-          })}
+                  }`
+                }
+              >
+                <span className="material-symbols-outlined text-xl">{item.icon}</span>
+                {item.name}
+              </NavLink>
+            </li>
+          ))}
         </ul>
       </div>
 

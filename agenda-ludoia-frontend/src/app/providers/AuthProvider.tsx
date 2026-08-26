@@ -2,12 +2,13 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import type { Session, User } from '@supabase/supabase-js';
 import { supabase } from '../../services/supabaseClient';
 
-export type UserRole = 'super_admin' | 'clinic_admin' | 'physio' | 'patient';
+export type UserRole = 'super_admin' | 'clinic_admin' | 'physio' | 'nutritionist' | 'general_doctor' | 'patient';
 
 interface AuthContextType {
   session: Session | null;
   user: User | null;
   role: UserRole;
+  fullName: string | null;
   tenantId: string | null;
   loading: boolean;
   signInWithMagicLink: (email: string) => Promise<void>;
@@ -18,6 +19,7 @@ const AuthContext = createContext<AuthContextType>({
   session: null,
   user: null,
   role: 'patient',
+  fullName: null,
   tenantId: null,
   loading: true,
   signInWithMagicLink: async () => {},
@@ -29,51 +31,75 @@ interface AuthProviderProps {
 }
 
 /**
- * Supabase Auth context provider con soporte para Claims JWT y Roles RBAC.
+ * Supabase Auth context provider con soporte para Claims JWT y Roles RBAC de public.users.
  */
 export function AuthProvider({ children }: AuthProviderProps) {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [role, setRole] = useState<UserRole>('patient');
+  const [fullName, setFullName] = useState<string | null>(null);
   const [tenantId, setTenantId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Extraer rol y claims del usuario o JWT de Supabase
-  const extractUserClaims = (userObj: User | null) => {
+  // Extraer rol y perfil desde public.users en la BD
+  const extractUserProfile = async (userObj: User | null) => {
     if (!userObj) {
       setRole('patient');
+      setFullName(null);
       setTenantId(null);
       return;
     }
 
-    // Buscar rol en app_metadata o user_metadata (Claims Supabase)
-    const userRole = (userObj.app_metadata?.role || userObj.user_metadata?.role || 'patient') as UserRole;
-    const tId = (userObj.app_metadata?.tenant_id || userObj.user_metadata?.tenant_id || null) as string | null;
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .select('role, full_name, tenant_id')
+        .eq('id', userObj.id)
+        .single();
 
-    setRole(userRole);
-    setTenantId(tId);
+      if (error || !data) {
+        // Fallback a los metadatos
+        setRole((userObj.app_metadata?.role || userObj.user_metadata?.role || 'patient') as UserRole);
+        setFullName((userObj.user_metadata?.full_name || userObj.email) as string);
+        setTenantId((userObj.app_metadata?.tenant_id || userObj.user_metadata?.tenant_id || null) as string | null);
+      } else {
+        setRole(data.role as UserRole);
+        setFullName(data.full_name);
+        setTenantId(data.tenant_id);
+      }
+    } catch (e) {
+      console.error('Error fetching user profile:', e);
+    }
   };
 
   useEffect(() => {
+    let mounted = true;
+
     // Obtener sesión inicial
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (!mounted) return;
       setSession(session);
       setUser(session?.user ?? null);
-      extractUserClaims(session?.user ?? null);
+      await extractUserProfile(session?.user ?? null);
       setLoading(false);
     });
 
     // Escuchar cambios de autenticación en tiempo real
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
+      async (_event, session) => {
+        if (!mounted) return;
+        setLoading(true);
         setSession(session);
         setUser(session?.user ?? null);
-        extractUserClaims(session?.user ?? null);
+        await extractUserProfile(session?.user ?? null);
         setLoading(false);
       }
     );
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signInWithMagicLink = async (email: string) => {
@@ -97,6 +123,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         session,
         user,
         role,
+        fullName,
         tenantId,
         loading,
         signInWithMagicLink,
