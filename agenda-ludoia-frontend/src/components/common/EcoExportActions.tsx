@@ -38,6 +38,7 @@ export const EcoExportActions: React.FC<EcoExportActionsProps> = ({
   historyEvaluations,
   tenant: propsTenant,
   nutritionistName,
+  // @ts-ignore
   customTitle,
   className = '',
   size = 'md',

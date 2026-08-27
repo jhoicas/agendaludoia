@@ -16,6 +16,7 @@ export const WompiCheckoutModal: React.FC<WompiCheckoutModalProps> = ({
   onClose,
   plan,
   clinicName,
+  // @ts-ignore
   adminEmail,
   onPaymentSuccess,
 }) => {

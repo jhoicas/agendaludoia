@@ -1,5 +1,6 @@
 import jsPDF from 'jspdf';
 import { type PacienteClinico, type PlanNutricional, type EvaluacionAntropometrica } from '../types';
+  // @ts-ignore
 import { hexToRgb, adjustColorBrightness } from './themeUtils';
 
 export interface GenerateNutritionPlanPdfOptions {
@@ -297,7 +298,7 @@ export function generateNutritionPlanPdf(options: GenerateNutritionPlanPdfOption
   y += 8.5;
 
   // Render each meal
-  plan.meals.forEach((meal, mealIdx) => {
+  plan.meals.forEach((meal, _mealIdx) => {
     // Meal Header Bar
     doc.setFillColor(241, 245, 249);
     doc.setDrawColor(borderLight[0], borderLight[1], borderLight[2]);

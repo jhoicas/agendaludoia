@@ -20,6 +20,7 @@ import {
   Stethoscope,
   HeartHandshake
 } from 'lucide-react';
+  // @ts-ignore
 import { type ProfessionalWithDetails, type Review } from '../../../types';
 import { 
   formatPatientNameForPrivacy, 

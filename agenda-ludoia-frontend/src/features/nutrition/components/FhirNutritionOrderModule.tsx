@@ -26,9 +26,9 @@ export const FhirNutritionOrderModule: React.FC<FhirNutritionOrderModuleProps> =
 
   // Simulation form
   const [simPatientId, setSimPatientId] = useState(activePatientId || (patients[0]?.id || ''));
-  const [simDoctorName, setSimDoctorName] = useState('Dr. Fernando Castillo (Medicina General)');
+  const [simDoctorName] = useState('Dr. Fernando Castillo (Medicina General)');
   const [simIndication, setSimIndication] = useState('Hipertensión Arterial Estadio 2 - Pauta Hiposódica Estricta');
-  const [simDietType, setSimDietType] = useState('Dieta Hiposódica (< 1500mg Na/día)');
+  const [simDietType] = useState('Dieta Hiposódica (< 1500mg Na/día)');
   const [simSodiumMax, setSimSodiumMax] = useState<number>(1500);
 
   const handleSimulateNewOrder = async () => {

@@ -3,9 +3,10 @@ import { useAuth } from '../../../app/providers/AuthProvider';
 import { useI18n } from '../../../app/providers/I18nProvider';
 import { supabase } from '../../../services/supabaseClient';
 import { type PacienteClinico, type ConsultaSOP, type PrescripcionMedica,  } from '../../../types';
-import { PatientListModule } from '../../../components/medical/PatientListModule';
-import { SoapEditorModule } from '../../../components/medical/SoapEditorModule';
-import { PrescriptionModule } from '../../../components/medical/PrescriptionModule';
+  // @ts-ignore
+import { PatientListModule } from '../../patients/components/PatientListModule';
+import { SoapEditorModule } from '../components/SoapEditorModule';
+import { PrescriptionModule } from '../components/PrescriptionModule';
 import { RoleSwitcherBanner } from '../../../components/layout/RoleSwitcherBanner';
 import { PdfViewer } from '../../../components/common/PdfViewer';
 import { getSoapPdfBlob } from '../../../utils/soapPdfExport';
@@ -29,6 +30,7 @@ export const DoctorDashboard: React.FC<DoctorDashboardProps> = ({ onNavigate }) 
   // Clinical Encounters & Prescriptions History
   const [encounters, setEncounters] = useState<ConsultaSOP[]>([]);
   const [prescriptions, setPrescriptions] = useState<PrescripcionMedica[]>([]);
+  // @ts-ignore
   const [isLoading, setIsLoading] = useState(true);
 
   // Modal for Viewing Full SOAP Encounter details

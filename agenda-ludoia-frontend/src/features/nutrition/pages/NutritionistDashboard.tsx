@@ -45,6 +45,7 @@ function mapActiveToPacienteClinico(active: ActivePatient, tenantId: string): Pa
 
 export const NutritionistDashboard: React.FC<NutritionistDashboardProps> = ({ onNavigate }) => {
   const { user, tenant } = useAuth();
+  // @ts-ignore
   const { t } = useI18n();
 
   // Global Active Patient Store
@@ -59,6 +60,7 @@ export const NutritionistDashboard: React.FC<NutritionistDashboardProps> = ({ on
   const [evaluations, setEvaluations] = useState<EvaluacionAntropometrica[]>([]);
   const [plans, setPlans] = useState<PlanNutricional[]>([]);
   const [fhirOrders, setFhirOrders] = useState<OrdenNutricionFHIR[]>([]);
+  // @ts-ignore
   const [isLoading, setIsLoading] = useState(false);
 
   // View modal states

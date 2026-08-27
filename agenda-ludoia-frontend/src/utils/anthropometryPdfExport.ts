@@ -94,7 +94,7 @@ export function generateAnthropometryPdf(options: GenerateAnthropometryPdfOption
 
   // Paleta de Colores Clínicos Institucionales
   const primaryNavy = [0, 72, 112]; // #004870
-  const primaryNavyLight = [15, 96, 143];
+  
   const secondaryGreen = [0, 108, 73]; // #006c49
   const darkNeutral = [30, 41, 59]; // Slate-800
   const lightNeutral = [100, 116, 139]; // Slate-500

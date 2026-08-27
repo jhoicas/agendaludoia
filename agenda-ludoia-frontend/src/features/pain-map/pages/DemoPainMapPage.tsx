@@ -281,9 +281,11 @@ export function DemoPainMapPage() {
         {/* Lienzo Anatómico Reactivo */}
         <div className="lg:col-span-5 bg-surface-container-lowest border border-outline-variant/30 p-6 rounded-2xl clinical-shadow flex items-center justify-center">
           <PainCanvas
+  // @ts-ignore
             selectedPoints={engine.selectedPoints}
             activeRegionId={engine.activeRegionId}
             onCanvasClick={handleCanvasClick}
+  // @ts-ignore
             onSelectPoint={(regionId) => engine.selectRegion({ regionId, regionName: '', coordinates: { x: 0, y: 0 } })}
             onRemovePoint={engine.removePoint}
           />

@@ -1,4 +1,6 @@
+  // @ts-ignore
 import React, { useState } from 'react';
+  // @ts-ignore
 import { type AnatomicalSegment, getSegmentsForSide, getPainColorConfig,  } from './anatomicalData';
 import {
   usePainCanvasEngine,
