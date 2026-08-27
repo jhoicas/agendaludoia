@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../../app/providers/AuthProvider';
 import { useI18n } from '../../../app/providers/I18nProvider';
 import { supabase } from '../../../services/supabaseClient';
-import { type PacienteClinico, type ConsultaSOP, PrescripcionMedica,  } from '../../../types';
+import { type PacienteClinico, type ConsultaSOP, type PrescripcionMedica,  } from '../../../types';
 import { PatientListModule } from '../../../components/medical/PatientListModule';
 import { SoapEditorModule } from '../../../components/medical/SoapEditorModule';
 import { PrescriptionModule } from '../../../components/medical/PrescriptionModule';

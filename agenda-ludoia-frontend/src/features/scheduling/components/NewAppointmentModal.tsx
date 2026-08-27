@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { User, type AppointmentStatus } from '../../../types';
+import { type User, type AppointmentStatus } from '../../../types';
 import { supabase } from '../../../services/supabaseClient';
 import { useAuth } from '../../../app/providers/AuthProvider';
 import { useI18n } from '../../../app/providers/I18nProvider';

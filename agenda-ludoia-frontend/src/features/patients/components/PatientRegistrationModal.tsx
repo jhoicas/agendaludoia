@@ -4,8 +4,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import {
   patientRegistrationSchema,
   PatientRegistrationFormData,
-} from '../../schemas/patientSchema';
-import { PhoneInputWithCountry } from '../common/PhoneInputWithCountry';
+} from '../../../schemas/patientSchema';
+import { PhoneInputWithCountry } from '../../../components/common/PhoneInputWithCountry';
 import { useI18n } from '../../../app/providers/I18nProvider';
 
 interface PatientRegistrationModalProps {

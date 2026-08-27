@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { type PacienteClinico, type PlanNutricional, TiempoComida, type AlimentoItem, type OrdenNutricionFHIR, type EvaluacionAntropometrica,  } from '../../../types';
+import { type PacienteClinico, type PlanNutricional, type TiempoComida, type AlimentoItem, type OrdenNutricionFHIR, type EvaluacionAntropometrica,  } from '../../../types';
 import { FOOD_DATABASE } from '../../../data/nutritionCatalog';
 import { convertMacroPctToGrams } from '../../../utils/nutritionCalculations';
-import { EcoExportActions } from '../common/EcoExportActions';
+import { EcoExportActions } from '../../../components/common/EcoExportActions';
 import { dietPlanFormSchema, DietPlanFormData } from '../../schemas/nutritionSchemas';
 
 interface DietPlannerModuleProps {

@@ -465,7 +465,7 @@ export function getNutritionPlanPdfBase64(options: GenerateNutritionPlanPdfOptio
 /**
  * Obtiene el Data URL para previsualización interactiva
  */
-/* export function getNutritionPlanPdfDataUrl(options: GenerateNutritionPlanPdfOptions): string {
+/* export function (options: GenerateNutritionPlanPdfOptions): string {
   const doc = generateNutritionPlanPdf(options);
   return doc.output('datauristring');
 } */

@@ -79,7 +79,7 @@ export const RoleSwitcherBanner: React.FC<RoleSwitcherBannerProps> = ({ onNaviga
   ];
 
   const handleSelectRole = (userId: string, targetRoute: string) => {
-    setUserAndRole(userId);
+    setUserAndRole?.(userId);
     setIsOpen(false);
     onNavigate(targetRoute);
   };

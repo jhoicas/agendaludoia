@@ -3,15 +3,15 @@ import { useAuth } from '../../../app/providers/AuthProvider';
 import { useI18n } from '../../../app/providers/I18nProvider';
 import { supabase } from '../../../services/supabaseClient';
 import { type PacienteClinico, type EvaluacionAntropometrica, type PlanNutricional, type OrdenNutricionFHIR,  } from '../../../types';
-import { AnthropometryEvaluationModule } from '../../../components/nutrition/AnthropometryEvaluationModule';
-import { DietPlannerModule } from '../../../components/nutrition/DietPlannerModule';
-import { FhirNutritionOrderModule } from '../../../components/nutrition/FhirNutritionOrderModule';
-import { NutritionSqlMigrationTab } from '../../../components/nutrition/NutritionSqlMigrationTab';
-import { AnthropometryPdfModal } from '../../../components/nutrition/AnthropometryPdfModal';
+import { AnthropometryEvaluationModule } from '../components/AnthropometryEvaluationModule';
+import { DietPlannerModule } from '../components/DietPlannerModule';
+import { FhirNutritionOrderModule } from '../components/FhirNutritionOrderModule';
+import { NutritionSqlMigrationTab } from '../components/NutritionSqlMigrationTab';
+import { AnthropometryPdfModal } from '../components/AnthropometryPdfModal';
 import { RoleSwitcherBanner } from '../../../components/layout/RoleSwitcherBanner';
 import { PatientSearchCombobox } from '../../../components/common/PatientSearchCombobox';
 import { EcoExportActions } from '../../../components/common/EcoExportActions';
-import { useAppStore, ActivePatient } from '../../../store/useAppStore';
+import { useAppStore, type ActivePatient } from '../../../store/useAppStore';
 
 interface NutritionistDashboardProps {
   onNavigate?: (path: string) => void;

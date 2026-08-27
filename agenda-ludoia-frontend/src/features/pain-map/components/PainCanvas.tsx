@@ -1,15 +1,11 @@
 import React, { useState } from 'react';
-import {
-  AnatomicalSegment,
-  getSegmentsForSide,
-  getPainColorConfig,
-} from './anatomicalData';
+import { type AnatomicalSegment, getSegmentsForSide, getPainColorConfig,  } from './anatomicalData';
 import {
   usePainCanvasEngine,
   SVG_VIEWBOX_WIDTH,
   SVG_VIEWBOX_HEIGHT,
 } from './usePainCanvasEngine';
-import { PainObservation } from '../../../types';
+import { type PainObservation } from '../../../types';
 
 export interface PainCanvasProps {
   bodySide: 'front' | 'back';

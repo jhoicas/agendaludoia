@@ -1,5 +1,5 @@
 import { supabase, formatPatientNameForPrivacy } from './supabaseClient';
-import { User, ProfessionalProfile, type Review, type ProfessionalWithDetails } from '../types';
+import { type User, ProfessionalProfile, type Review, type ProfessionalWithDetails } from '../types';
 
 /**
  * Single optimized PostgREST / Supabase Join Query string

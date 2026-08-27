@@ -914,7 +914,7 @@ export function getAnthropometryPdfBlob(options: GenerateAnthropometryPdfOptions
 /**
  * Obtiene el Data URL del PDF para previsualización interactiva en un iframe o modal.
  */
-/* export function getAnthropometryPdfDataUrl(options: GenerateAnthropometryPdfOptions): string {
+/* export function (options: GenerateAnthropometryPdfOptions): string {
   const doc = generateAnthropometryPdf(options);
   return doc.output('datauristring');
 } */

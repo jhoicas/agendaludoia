@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { User, PainObservation } from '../../../types';
+import { type User, type PainObservation } from '../../../types';
 import { supabase } from '../../../services/supabaseClient';
 import { formatDateTime } from '../../../utils/dateUtils';
 import { useI18n } from '../../../app/providers/I18nProvider';

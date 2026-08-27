@@ -4,15 +4,23 @@ import { supabase } from '../../services/supabaseClient';
 
 export type UserRole = 'super_admin' | 'clinic_admin' | 'physio' | 'nutritionist' | 'general_doctor' | 'patient';
 
+import type { Tenant } from '../../types';
+
 interface AuthContextType {
   session: Session | null;
-  user: User | null;
+  user: (User & { full_name?: string; tenant_id?: string; license_number?: string; role?: string }) | null; // supabase user
   role: UserRole;
   fullName: string | null;
   tenantId: string | null;
   loading: boolean;
   signInWithMagicLink: (email: string) => Promise<void>;
   signOut: () => Promise<void>;
+  tenant?: Tenant | null;
+  availableUsers?: any[];
+  setUserAndRole?: (user: any, role: string) => void;
+  trialDaysLeft?: number;
+  isTrialExpired?: boolean;
+  updateTenant?: (tenant: any) => void;
 }
 
 const AuthContext = createContext<AuthContextType>({

@@ -110,7 +110,7 @@ export function SettingsPage({ onNavigate }: SettingsPageProps) {
 
       if (error) throw error;
 
-      await updateTenant(updates);
+      await updateTenant?.(updates);
 
       setSuccessBanner(t('common.save_success', 'Ajustes guardados con éxito en la base de datos.'));
       addToast('success', t('settings.save_success', 'Configuración Actualizada'), 'Los ajustes se aplicaron inmediatamente.');

@@ -1,8 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import { type PacienteClinico, type EvaluacionAntropometrica } from '../../../types';
 import { downloadAnthropometryPdf, getAnthropometryPdfBlob } from '../../../utils/anthropometryPdfExport';
-import { EcoExportActions } from '../common/EcoExportActions';
-import { PdfViewer } from '../common/PdfViewer';
+import { EcoExportActions } from '../../../components/common/EcoExportActions';
+import { PdfViewer } from '../../../components/common/PdfViewer';
 
 interface AnthropometryPdfModalProps {
   isOpen: boolean;

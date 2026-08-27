@@ -1,9 +1,5 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
-import {
-  AnatomicalSegment,
-  getSegmentsForSide,
-  findSegmentById,
-} from './anatomicalData';
+import { type AnatomicalSegment, getSegmentsForSide, findSegmentById,  } from './anatomicalData';
 
 export interface UsePainCanvasEngineProps {
   bodySide: 'front' | 'back';

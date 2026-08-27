@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useId } from 'react';
 import { useAuth } from '../../app/providers/AuthProvider';
 import { useI18n } from '../../app/providers/I18nProvider';
 import { supabase } from '../../services/supabaseClient';
-import { useAppStore, ActivePatient } from '../../store/useAppStore';
+import { useAppStore, type ActivePatient } from '../../store/useAppStore';
 
 export interface PatientSearchComboboxProps {
   variant?: 'standard' | 'large' | 'compact';

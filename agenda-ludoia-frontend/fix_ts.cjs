@@ -24,7 +24,8 @@ const typesToFix = [
   'Tenant', 'EvaluacionAntropometrica', 'PlanNutricional', 'PacienteClinico', 
   'Country', 'Locale', 'Appointment', 'AppointmentStatus', 'ConsultaSOP', 
   'AlimentoItem', 'OrdenNutricionFHIR', 'ToastMessage', 'PricingPlanConfig', 
-  'ProfessionalWithDetails', 'Review'
+  'ProfessionalWithDetails', 'Review', 'User', 'ActivePatient', 
+  'PrescripcionMedica', 'AnatomicalSegment', 'PainObservation', 'TiempoComida'
 ];
 
 files.forEach(file => {
