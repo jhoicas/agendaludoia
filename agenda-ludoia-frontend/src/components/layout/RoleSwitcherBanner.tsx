@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../../app/providers/AuthProvider';
 import { useI18n } from '../../app/providers/I18nProvider';
   // @ts-ignore
-import { UserRole } from '../../types';
+import type { UserRole } from '../../types';
 
 interface RoleSwitcherBannerProps {
   onNavigate?: (path: string) => void;

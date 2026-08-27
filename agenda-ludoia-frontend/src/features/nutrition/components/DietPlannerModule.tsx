@@ -8,7 +8,7 @@ import { FOOD_DATABASE } from '../../../data/nutritionCatalog';
 import { convertMacroPctToGrams } from '../../../utils/nutritionCalculations';
 import { EcoExportActions } from '../../../components/common/EcoExportActions';
   // @ts-ignore
-import { dietPlanFormSchema, DietPlanFormData } from '../../schemas/nutritionSchemas';
+import { dietPlanFormSchema, type DietPlanFormData } from '../../../schemas/nutritionSchemas';
 
 interface DietPlannerModuleProps {
   patient: PacienteClinico;

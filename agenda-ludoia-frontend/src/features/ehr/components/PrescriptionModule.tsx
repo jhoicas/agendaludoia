@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
   // @ts-ignore
-import { type PacienteClinico, type PrescripcionMedica, MedicationItem } from '../../../types';
+import type { PacienteClinico, PrescripcionMedica, MedicationItem } from '../../../types';
 
 interface PrescriptionModuleProps {
   patient: PacienteClinico;

@@ -4,7 +4,7 @@ import { useI18n } from '../../../app/providers/I18nProvider';
 import { supabase } from '../../../services/supabaseClient';
 import { type PacienteClinico, type ConsultaSOP, type PrescripcionMedica,  } from '../../../types';
   // @ts-ignore
-import { PatientListModule } from '../../patients/components/PatientListModule';
+import { PatientListModule } from '../components/PatientListModule';
 import { SoapEditorModule } from '../components/SoapEditorModule';
 import { PrescriptionModule } from '../components/PrescriptionModule';
 import { RoleSwitcherBanner } from '../../../components/layout/RoleSwitcherBanner';

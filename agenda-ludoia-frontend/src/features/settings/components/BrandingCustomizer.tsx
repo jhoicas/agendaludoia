@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useAuth } from '../../../app/providers/AuthProvider';
   // @ts-ignore
-import { useTheme } from '../../../../app/providers/ThemeProvider';
+import { useTheme } from '../../../app/providers/ThemeProvider';
 import { supabase } from '../../../services/supabaseClient';
 import { isValidHexColor, getContrastForeground } from '../../../utils/themeUtils';
 

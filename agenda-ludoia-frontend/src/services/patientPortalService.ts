@@ -1,6 +1,6 @@
 import { supabase, formatPatientNameForPrivacy } from './supabaseClient';
   // @ts-ignore
-import { type User, ProfessionalProfile, type Review, type ProfessionalWithDetails } from '../types';
+import type { User, ProfessionalProfile, Review, ProfessionalWithDetails } from '../types';
 
 /**
  * Single optimized PostgREST / Supabase Join Query string

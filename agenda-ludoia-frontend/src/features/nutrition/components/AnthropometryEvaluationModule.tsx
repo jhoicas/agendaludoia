@@ -13,9 +13,9 @@ import { AnthropometryProgressTimeline } from './AnthropometryProgressTimeline';
 import { downloadAnthropometryPdf } from '../../../utils/anthropometryPdfExport';
 import {
   anthropometryEvaluationSchema,
-  AnthropometryFormData,
+  type AnthropometryFormData,
   // @ts-ignore
-} from '../../schemas/nutritionSchemas';
+} from '../../../schemas/nutritionSchemas';
 
 interface AnthropometryEvaluationModuleProps {
   patient: PacienteClinico;
