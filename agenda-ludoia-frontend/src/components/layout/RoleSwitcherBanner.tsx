@@ -4,7 +4,7 @@ import { useI18n } from '../../app/providers/I18nProvider';
 import { UserRole } from '../../types';
 
 interface RoleSwitcherBannerProps {
-  onNavigate: (path: string) => void;
+  onNavigate?: (path: string) => void;
   currentPath: string;
 }
 

@@ -1,18 +1,16 @@
 import React, { useState } from 'react';
-import { PacienteClinico, PlanNutricional, EvaluacionAntropometrica, Tenant } from '../../types';
+import { type PacienteClinico, type PlanNutricional, type EvaluacionAntropometrica, type Tenant } from '../../types';
 import { useAuth } from '../../app/providers/AuthProvider';
 import { supabase } from '../../services/supabaseClient';
 import {
   downloadNutritionPlanPdf,
   getNutritionPlanPdfBase64,
   getNutritionPlanPdfBlob,
-  getNutritionPlanPdfDataUrl,
 } from '../../utils/nutritionPdfExport';
 import {
   downloadAnthropometryPdf,
   getAnthropometryPdfBase64,
   getAnthropometryPdfBlob,
-  getAnthropometryPdfDataUrl,
 } from '../../utils/anthropometryPdfExport';
 import { PdfViewer } from './PdfViewer';
 

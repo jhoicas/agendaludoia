@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { PacienteClinico, PrescripcionMedica, MedicationItem } from '../../../types';
+import { type PacienteClinico, PrescripcionMedica, MedicationItem } from '../../../types';
 
 interface PrescriptionModuleProps {
   patient: PacienteClinico;

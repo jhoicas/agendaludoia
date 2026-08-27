@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { PacienteClinico, ConsultaSOP, Icd10Diagnosis, VitalSignsObservation } from '../../../types';
+import { type PacienteClinico, type ConsultaSOP, Icd10Diagnosis, VitalSignsObservation } from '../../../types';
 
 interface SoapEditorModuleProps {
   patient: PacienteClinico;

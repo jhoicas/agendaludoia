@@ -5,9 +5,9 @@ import { supabase, INITIAL_TENANT } from '../../../services/supabaseClient';
 import { SideNavBar } from '../../../components/layout/SideNavBar';
 import { TopNavBar } from '../../../components/layout/TopNavBar';
 import { PhoneInputWithCountry } from '../../../components/common/PhoneInputWithCountry';
-import { ToastContainer, ToastMessage } from '../../../components/common/Toast';
+import { ToastContainer, type ToastMessage } from '../../../components/common/Toast';
 import { BrandingCustomizer } from '../components/BrandingCustomizer';
-import { Tenant } from '../../../types';
+import { type Tenant } from '../../../types';
 
 interface SettingsPageProps {
   onNavigate?: (path: string) => void;

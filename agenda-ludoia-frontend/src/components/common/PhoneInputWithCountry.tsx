@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Country, COUNTRIES, DEFAULT_COUNTRY } from '../../data/countries';
+import { type Country, COUNTRIES, DEFAULT_COUNTRY } from '../../data/countries';
 
 interface PhoneInputWithCountryProps {
   value: string;

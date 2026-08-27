@@ -1,5 +1,5 @@
 import jsPDF from 'jspdf';
-import { PacienteClinico, PlanNutricional, EvaluacionAntropometrica } from '../types';
+import { type PacienteClinico, type PlanNutricional, type EvaluacionAntropometrica } from '../types';
 import { hexToRgb, adjustColorBrightness } from './themeUtils';
 
 export interface GenerateNutritionPlanPdfOptions {
@@ -465,7 +465,7 @@ export function getNutritionPlanPdfBase64(options: GenerateNutritionPlanPdfOptio
 /**
  * Obtiene el Data URL para previsualización interactiva
  */
-export function getNutritionPlanPdfDataUrl(options: GenerateNutritionPlanPdfOptions): string {
+/* export function getNutritionPlanPdfDataUrl(options: GenerateNutritionPlanPdfOptions): string {
   const doc = generateNutritionPlanPdf(options);
   return doc.output('datauristring');
-}
+} */

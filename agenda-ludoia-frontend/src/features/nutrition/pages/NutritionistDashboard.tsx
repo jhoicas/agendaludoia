@@ -2,12 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../../../app/providers/AuthProvider';
 import { useI18n } from '../../../app/providers/I18nProvider';
 import { supabase } from '../../../services/supabaseClient';
-import {
-  PacienteClinico,
-  EvaluacionAntropometrica,
-  PlanNutricional,
-  OrdenNutricionFHIR,
-} from '../../../types';
+import { type PacienteClinico, type EvaluacionAntropometrica, type PlanNutricional, type OrdenNutricionFHIR,  } from '../../../types';
 import { AnthropometryEvaluationModule } from '../../../components/nutrition/AnthropometryEvaluationModule';
 import { DietPlannerModule } from '../../../components/nutrition/DietPlannerModule';
 import { FhirNutritionOrderModule } from '../../../components/nutrition/FhirNutritionOrderModule';
@@ -19,7 +14,7 @@ import { EcoExportActions } from '../../../components/common/EcoExportActions';
 import { useAppStore, ActivePatient } from '../../../store/useAppStore';
 
 interface NutritionistDashboardProps {
-  onNavigate: (path: string) => void;
+  onNavigate?: (path: string) => void;
 }
 
 /**

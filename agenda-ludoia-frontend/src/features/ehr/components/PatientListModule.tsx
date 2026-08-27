@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { PacienteClinico } from '../../../types';
+import { type PacienteClinico } from '../../../types';
 
 interface PatientListModuleProps {
   patients: PacienteClinico[];

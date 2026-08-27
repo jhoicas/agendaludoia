@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useI18n } from '../../app/providers/I18nProvider';
-import { Locale } from '../../i18n/translations';
+import { type Locale } from '../../i18n/translations';
 
 interface LanguageSelectorProps {
   variant?: 'compact' | 'full';

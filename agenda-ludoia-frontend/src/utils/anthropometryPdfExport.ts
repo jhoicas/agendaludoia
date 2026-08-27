@@ -1,5 +1,5 @@
 import jsPDF from 'jspdf';
-import { PacienteClinico, EvaluacionAntropometrica } from '../types';
+import { type PacienteClinico, type EvaluacionAntropometrica } from '../types';
 
 export interface GenerateAnthropometryPdfOptions {
   patient: PacienteClinico;
@@ -914,10 +914,10 @@ export function getAnthropometryPdfBlob(options: GenerateAnthropometryPdfOptions
 /**
  * Obtiene el Data URL del PDF para previsualización interactiva en un iframe o modal.
  */
-export function getAnthropometryPdfDataUrl(options: GenerateAnthropometryPdfOptions): string {
+/* export function getAnthropometryPdfDataUrl(options: GenerateAnthropometryPdfOptions): string {
   const doc = generateAnthropometryPdf(options);
   return doc.output('datauristring');
-}
+} */
 
 /**
  * Genera el string Base64 del archivo PDF (para adjuntar en la Edge Function)

@@ -1,5 +1,5 @@
 import jsPDF from 'jspdf';
-import { ConsultaSOP, PacienteClinico } from '../types';
+import { type ConsultaSOP, type PacienteClinico } from '../types';
 
 export interface GenerateSoapPdfOptions {
   patient: PacienteClinico;

@@ -1,4 +1,4 @@
-import { AlimentoItem, OrdenNutricionFHIR, PlanNutricional } from '../types';
+import { type AlimentoItem, type OrdenNutricionFHIR, type PlanNutricional } from '../types';
 
 export const FOOD_DATABASE: Omit<AlimentoItem, 'id'>[] = [
   // PROTEÍNAS

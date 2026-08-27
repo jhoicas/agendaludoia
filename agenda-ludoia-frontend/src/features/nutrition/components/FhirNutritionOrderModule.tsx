@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { OrdenNutricionFHIR, PacienteClinico } from '../../../types';
+import { type OrdenNutricionFHIR, type PacienteClinico } from '../../../types';
 
 interface FhirNutritionOrderModuleProps {
   orders: OrdenNutricionFHIR[];

@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { Locale, TRANSLATIONS } from '../../i18n/translations';
-import { Country, COUNTRIES, DEFAULT_COUNTRY } from '../../data/countries';
+import { type Locale, TRANSLATIONS } from '../../i18n/translations';
+import { type Country, COUNTRIES, DEFAULT_COUNTRY } from '../../data/countries';
 
 export interface LocaleOption {
   code: Locale;

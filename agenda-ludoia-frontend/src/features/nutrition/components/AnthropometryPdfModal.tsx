@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { PacienteClinico, EvaluacionAntropometrica } from '../../../types';
+import { type PacienteClinico, type EvaluacionAntropometrica } from '../../../types';
 import { downloadAnthropometryPdf, getAnthropometryPdfBlob } from '../../../utils/anthropometryPdfExport';
 import { EcoExportActions } from '../common/EcoExportActions';
 import { PdfViewer } from '../common/PdfViewer';

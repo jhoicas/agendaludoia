@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { PricingPlanConfig } from '../../../../types';
+import { type PricingPlanConfig } from '../../../../types';
 import { useI18n } from '../../../../app/providers/I18nProvider';
 
 interface WompiCheckoutModalProps {

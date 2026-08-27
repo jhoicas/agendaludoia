@@ -3,7 +3,7 @@ import { useAuth } from '../../../app/providers/AuthProvider';
 import { useI18n } from '../../../app/providers/I18nProvider';
 import { supabase } from '../../../services/supabaseClient';
 import { fetchProfessionalsWithJoinedDetails } from '../../../services/patientPortalService';
-import { Appointment, ProfessionalWithDetails } from '../../../types';
+import { type Appointment, type ProfessionalWithDetails } from '../../../types';
 import { SideNavBar } from '../../../components/layout/SideNavBar';
 import { TopNavBar } from '../../../components/layout/TopNavBar';
 import { RoleSwitcherBanner } from '../../../components/layout/RoleSwitcherBanner';
@@ -27,7 +27,7 @@ import {
 } from 'lucide-react';
 
 interface PatientPortalPageProps {
-  onNavigate: (path: string) => void;
+  onNavigate?: (path: string) => void;
 }
 
 export const PatientPortalPage: React.FC<PatientPortalPageProps> = ({ onNavigate }) => {

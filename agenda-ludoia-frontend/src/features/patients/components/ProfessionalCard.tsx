@@ -11,7 +11,7 @@ import {
   Sparkles,
   CheckCircle2
 } from 'lucide-react';
-import { ProfessionalWithDetails } from '../../../types';
+import { type ProfessionalWithDetails } from '../../../types';
 
 interface ProfessionalCardProps {
   professional: ProfessionalWithDetails;

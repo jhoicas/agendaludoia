@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { PacienteClinico, EvaluacionAntropometrica } from '../../../types';
+import { type PacienteClinico, type EvaluacionAntropometrica } from '../../../types';
 import { AnthropometryPdfModal } from './AnthropometryPdfModal';
 
 interface AnthropometryProgressTimelineProps {
