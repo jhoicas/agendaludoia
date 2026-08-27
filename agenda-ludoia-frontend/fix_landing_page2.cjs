@@ -1,49 +1,10 @@
-import { createClient } from '@supabase/supabase-js';
+const fs = require('fs');
+const path = require('path');
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'http://localhost:54321';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.placeholder';
+const file = path.join(__dirname, 'src/services/supabaseClient.ts');
 
-/**
- * Singleton Supabase client for the AgendaLudoia frontend.
- * Configured to use the anon key for public-facing operations.
- * Auth state is managed automatically by the client.
- */
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    autoRefreshToken: true,
-    persistSession: true,
-    detectSessionInUrl: true,
-  },
-  realtime: {
-    params: {
-      eventsPerSecond: 10,
-    },
-  },
-});
-
-export default supabase;
-
-export const INITIAL_TENANT = { 
-  id: 'default', 
-  name: 'Ludoia', 
-  slug: 'ludoia', 
-  timezone: 'UTC', 
-  cancellation_window_hours: 24, 
-  email: '', 
-  phone: '', 
-  address: '', 
-  appointment_duration_minutes: 30, 
-  currency: 'USD', 
-  subscription_plan: 'starter', 
-  subscription_status: 'active', 
-  max_users: 1, 
-  trial_ends_at: '' 
-};
-
-export function formatPatientNameForPrivacy(name: string) { 
-  return name; 
-}
-export const PRICING_PLANS: any[] = [
+const pricingPlans = `
+export const PRICING_PLANS = [
   {
     id: 'starter',
     name: 'Starter Plan',
@@ -101,3 +62,7 @@ export const PRICING_PLANS: any[] = [
     ],
   }
 ];
+`;
+
+fs.appendFileSync(file, pricingPlans, 'utf8');
+console.log('Appended PRICING_PLANS.');

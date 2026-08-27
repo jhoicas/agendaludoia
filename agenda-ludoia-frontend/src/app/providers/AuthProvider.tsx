@@ -67,7 +67,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
       if (error || !data) {
         // Fallback a los metadatos
-        setRole((userObj.app_metadata?.role || userObj.user_metadata?.role || 'patient') as UserRole);
+        const metaRole = userObj.app_metadata?.role || userObj.user_metadata?.role;
+        if (metaRole) {
+          setRole(metaRole as UserRole);
+        } else {
+          setRole('pending' as any);
+        }
         setFullName((userObj.user_metadata?.full_name || userObj.email) as string);
         setTenantId((userObj.app_metadata?.tenant_id || userObj.user_metadata?.tenant_id || null) as string | null);
       } else {
@@ -77,6 +82,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       }
     } catch (e) {
       console.error('Error fetching user profile:', e);
+      setRole('pending' as any);
     }
   };
 

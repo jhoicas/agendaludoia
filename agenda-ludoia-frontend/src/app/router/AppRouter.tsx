@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { LoginPage } from '../../features/auth/pages/LoginPage';
+import { LandingPage } from '../../features/landing/pages/LandingPage';
 import { SuperAdminDashboardPage } from '../../features/dashboard/pages/SuperAdminDashboardPage';
 import { DemoPainMapPage } from '../../features/pain-map/pages/DemoPainMapPage';
 import { PatientPortalPage } from '../../features/scheduling/pages/PatientPortalPage';
@@ -11,6 +12,12 @@ import { DoctorDashboard } from '../../features/ehr/pages/DoctorDashboard';
 import { NutritionistDashboard } from '../../features/nutrition/pages/NutritionistDashboard';
 import { ProtectedRoute } from '../ProtectedRoute';
 import { useAuth } from '../providers/AuthProvider';
+import { useNavigate } from 'react-router-dom';
+
+function LandingRoute() {
+  const navigate = useNavigate();
+  return <LandingPage onNavigate={(path) => navigate(path)} />;
+}
 
 function RoleBasedDashboard() {
   const { role } = useAuth();
@@ -35,6 +42,18 @@ function RoleBasedDashboard() {
     return <Navigate to="/portal-paciente" replace />;
   }
 
+  if (role === 'pending' as any) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-slate-50">
+        <div className="text-center p-8 bg-white rounded-xl shadow-sm border border-slate-200">
+          <span className="material-symbols-outlined text-4xl text-amber-500 mb-4">hourglass_empty</span>
+          <h2 className="text-xl font-bold text-slate-800">Configurando su cuenta...</h2>
+          <p className="text-sm text-slate-600 mt-2">Estamos asignando sus permisos. Por favor, espere o contacte a soporte si esto demora.</p>
+        </div>
+      </div>
+    );
+  }
+
   return <DemoPainMapPage />;
 }
 
@@ -46,7 +65,7 @@ export function AppRouter() {
     <BrowserRouter>
       <Routes>
         {/* ── Public & Auth Routes ──────────────────────────── */}
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/" element={<LandingRoute />} />
         <Route path="/login" element={<LoginPage />} />
 
         {/* ── Admin & Clinical Protected Routes ───────────────── */}
