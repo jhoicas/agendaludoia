@@ -66,6 +66,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
         .single();
 
       if (error || !data) {
+        if (error?.code === 'PGRST116') {
+          // Ghost session, not found in public.users
+          await supabase.auth.signOut();
+          setUser(null);
+          setRole('patient');
+          setFullName(null);
+          setTenantId(null);
+          return;
+        }
+        
         // Fallback a los metadatos
         const metaRole = userObj.app_metadata?.role || userObj.user_metadata?.role;
         if (metaRole) {
@@ -80,8 +90,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
         setFullName(data.full_name);
         setTenantId(data.tenant_id);
       }
-    } catch (e) {
+    } catch (e: any) {
       console.error('Error fetching user profile:', e);
+      if (e?.code === 'PGRST116') {
+        await supabase.auth.signOut();
+        setUser(null);
+        setRole('patient');
+        setFullName(null);
+        setTenantId(null);
+        return;
+      }
       setRole('pending' as any);
     }
   };

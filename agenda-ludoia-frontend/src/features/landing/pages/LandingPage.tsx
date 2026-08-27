@@ -10,13 +10,13 @@ interface LandingPageProps {
 
 export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
   
-  const [currency, setCurrency] = useState<'COP' | 'USD' | 'CLP'>('COP');
+  const [currency, setCurrency] = useState<'COP' | 'USD'>('COP');
   const [activeTab, setActiveTab] = useState<'fisio' | 'nutri' | 'medico' | 'paciente'>('fisio');
 
   const handleSelectPlan = (plan: PricingPlanConfig) => {
     // Store selected plan in session for onboarding
     sessionStorage.setItem('kinesys_selected_plan', plan.id);
-    onNavigate('/onboarding');
+    onNavigate('/login?tab=register');
   };
 
   return (
@@ -28,7 +28,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
         </span>
         <span>Comienza tu prueba de software clínico sin tarjeta ni permanencia. Integrado con Wompi Gateway.</span>
         <button
-          onClick={() => onNavigate('/onboarding')}
+          onClick={() => onNavigate('/login?tab=register')}
           className="font-bold text-primary hover:underline cursor-pointer ml-1"
         >
           Registrar Clínica →
@@ -83,7 +83,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
             </button>
             <button
               id="btn-nav-trial"
-              onClick={() => onNavigate('/onboarding')}
+              onClick={() => onNavigate('/login?tab=register')}
               className="hidden xs:flex px-4 py-2 rounded-full text-xs font-extrabold text-white bg-primary hover:bg-primary-container transition-all shadow-sm shadow-primary/25 cursor-pointer items-center gap-1.5"
             >
               <span>Comenzar Trial</span>
@@ -112,7 +112,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
         <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
           <button
             id="btn-hero-onboarding"
-            onClick={() => onNavigate('/onboarding')}
+            onClick={() => onNavigate('/login?tab=register')}
             className="w-full sm:w-auto px-7 py-3.5 rounded-full text-sm font-extrabold text-white bg-primary hover:bg-primary-container shadow-md shadow-primary/20 transition-all transform hover:-translate-y-0.5 cursor-pointer flex items-center justify-center gap-2"
           >
             <span className="material-symbols-outlined text-lg">rocket_launch</span>
@@ -120,7 +120,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
           </button>
           
           <button
-            onClick={() => onNavigate('/calendario')}
+            onClick={() => onNavigate('/dashboard')}
             className="w-full sm:w-auto px-6 py-3.5 rounded-full text-sm font-bold text-on-surface-variant hover:text-on-surface bg-surface-container-lowest hover:bg-surface-container-low border border-outline-variant/30 shadow-xs transition-all cursor-pointer flex items-center justify-center gap-2"
           >
             <span className="material-symbols-outlined text-lg text-primary">play_circle</span>
@@ -270,7 +270,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
                   </div>
                 </div>
                 <button
-                  onClick={() => onNavigate('/mapa-dolor')}
+                  onClick={() => onNavigate('/demo-pain-map')}
                   className="mt-6 px-5 py-2.5 rounded-xl bg-teal-50 text-teal-700 border border-teal-200 text-xs font-bold hover:bg-teal-100 transition-all flex items-center gap-1.5 cursor-pointer"
                 >
                   <span>Probar Mapa de Dolor</span>
@@ -346,7 +346,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
                   </div>
                 </div>
                 <button
-                  onClick={() => onNavigate('/medicina-general')}
+                  onClick={() => onNavigate('/medico')}
                   className="mt-6 px-5 py-2.5 rounded-xl bg-teal-50 text-teal-700 border border-teal-200 text-xs font-bold hover:bg-teal-100 transition-all flex items-center gap-1.5 cursor-pointer"
                 >
                   <span>Ver Ficha Médica</span>
@@ -434,14 +434,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
             >
               USD ($ - Dólar)
             </button>
-            <button
-              onClick={() => setCurrency('CLP')}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                currency === 'CLP' ? 'bg-teal-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              CLP ($ - Chile)
-            </button>
           </div>
         </div>
 
@@ -452,8 +444,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
             const price =
               currency === 'COP'
                 ? `$${(plan.price_cop || 119000).toLocaleString('es-CO')} COP`
-                : currency === 'CLP'
-                ? `$${(plan.price_clp || 24990).toLocaleString('es-CL')} CLP`
                 : `$${plan.price_usd} USD`;
 
             return (
