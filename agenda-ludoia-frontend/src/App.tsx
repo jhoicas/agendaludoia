@@ -1,3 +1,5 @@
+import { ThemeProvider } from './app/providers/ThemeProvider';
+import { I18nProvider } from './app/providers/I18nProvider';
 import { QueryProvider } from './app/providers/QueryProvider';
 import { AuthProvider } from './app/providers/AuthProvider';
 import { SupabaseProvider } from './app/providers/SupabaseProvider';
@@ -6,20 +8,21 @@ import './index.css';
 
 /**
  * Root application component for AgendaLudoia.
- * Wraps the app with all necessary providers:
- * - SupabaseProvider: Supabase client context
- * - AuthProvider: Authentication state management
- * - QueryProvider: React Query data fetching
+ * Wraps the app with all necessary providers.
  */
 function App() {
   return (
-    <SupabaseProvider>
-      <AuthProvider>
-        <QueryProvider>
-          <AppRouter />
-        </QueryProvider>
-      </AuthProvider>
-    </SupabaseProvider>
+    <ThemeProvider>
+      <I18nProvider>
+        <SupabaseProvider>
+          <AuthProvider>
+            <QueryProvider>
+              <AppRouter />
+            </QueryProvider>
+          </AuthProvider>
+        </SupabaseProvider>
+      </I18nProvider>
+    </ThemeProvider>
   );
 }
 
