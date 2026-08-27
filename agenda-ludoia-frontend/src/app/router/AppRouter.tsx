@@ -7,6 +7,8 @@ import { PatientsPage } from '../../features/patients/pages/PatientsPage';
 import { CalendarPage } from '../../features/scheduling/pages/CalendarPage';
 import { AnalyticsPage } from '../../features/analytics/pages/AnalyticsPage';
 import { SettingsPage } from '../../features/settings/pages/SettingsPage';
+import { DoctorDashboard } from '../../features/ehr/pages/DoctorDashboard';
+import { NutritionistDashboard } from '../../features/nutrition/pages/NutritionistDashboard';
 import { ProtectedRoute } from '../ProtectedRoute';
 import { useAuth } from '../providers/AuthProvider';
 
@@ -17,8 +19,20 @@ function RoleBasedDashboard() {
     return <SuperAdminDashboardPage />;
   }
 
+  if (role === 'clinic_admin') {
+    return <Navigate to="/ajustes" replace />;
+  }
+
+  if (role === 'general_doctor') {
+    return <Navigate to="/medico" replace />;
+  }
+
+  if (role === 'nutritionist') {
+    return <Navigate to="/nutricion" replace />;
+  }
+
   if (role === 'patient') {
-    return <PatientPortalPage />;
+    return <Navigate to="/portal-paciente" replace />;
   }
 
   return <DemoPainMapPage />;
@@ -76,10 +90,36 @@ export function AppRouter() {
             </ProtectedRoute>
           }
         />
+        
+        {/* Nuevas rutas clínicas */}
         <Route
-          path="/configuracion"
+          path="/medico"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={['super_admin', 'clinic_admin', 'general_doctor']}>
+              <DoctorDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/nutricion"
+          element={
+            <ProtectedRoute allowedRoles={['super_admin', 'clinic_admin', 'nutritionist']}>
+              <NutritionistDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/portal-paciente"
+          element={
+            <ProtectedRoute allowedRoles={['patient']}>
+              <PatientPortalPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/ajustes"
+          element={
+            <ProtectedRoute allowedRoles={['super_admin', 'clinic_admin']}>
               <SettingsPage />
             </ProtectedRoute>
           }

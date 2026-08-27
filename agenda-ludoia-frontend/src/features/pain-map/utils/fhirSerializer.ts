@@ -1,4 +1,4 @@
-import type { AnatomicalObservation } from '../types/painmap.types';
+import type { AnatomicalObservation } from '../../../types/painmap.types';
 
 /**
  * Convierte las observaciones anatómicas del estado de la app

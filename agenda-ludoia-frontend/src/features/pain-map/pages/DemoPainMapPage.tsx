@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import { PainCanvas } from '../components/PainCanvas';
-import { usePainCanvasEngine } from '../hooks/usePainCanvasEngine';
-import { ANATOMICAL_REGIONS } from '../types/painmap.types';
-import { buildFHIRPainObservationResource } from '../utils/fhirSerializer';
+import { PainCanvas } from '../../../components/PainCanvas';
+import { usePainCanvasEngine } from '../../../hooks/usePainCanvasEngine';
+import { ANATOMICAL_REGIONS } from '../../../types/painmap.types';
+import { buildFHIRPainObservationResource } from '../../../utils/fhirSerializer';
 import { supabase } from '../../../services/supabaseClient';
 import { EvolutionChart } from '../../ehr/components/EvolutionChart';
-import type { AnatomicalView, AnatomicalLayer, PainType } from '../types/painmap.types';
+import type { AnatomicalView, AnatomicalLayer, PainType } from '../../../types/painmap.types';
 
 export function DemoPainMapPage() {
   const engine = usePainCanvasEngine();

@@ -1,240 +1,530 @@
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '../../../app/providers/AuthProvider';
+import { useI18n } from '../../../app/providers/I18nProvider';
+import { supabase } from '../../../services/supabaseClient';
+import { fetchProfessionalsWithJoinedDetails } from '../../../services/patientPortalService';
+import { Appointment, ProfessionalWithDetails } from '../../../types';
 import { SideNavBar } from '../../../components/layout/SideNavBar';
 import { TopNavBar } from '../../../components/layout/TopNavBar';
-import { usePatientAppointments } from '../hooks/usePatientAppointments';
-import { check24HourRule } from '../utils/rule24h';
+import { RoleSwitcherBanner } from '../../../components/layout/RoleSwitcherBanner';
+import { PhoneInputWithCountry } from '../../../components/common/PhoneInputWithCountry';
+import { ProfessionalProfileModal } from '../../patients/components/ProfessionalProfileModal';
+import { ProfessionalCard } from '../../patients/components/ProfessionalCard';
+import { generateCalendarLinksFromAppointment } from '../../../utils/calendarLinks';
+import { 
+  Calendar, 
+  CalendarPlus, 
+  Star, 
+  Users, 
+  Award, 
+  ShieldCheck, 
+  CheckCircle2, 
+  Sparkles, 
+  ChevronRight, 
+  Search,
+  ExternalLink,
+  MessageSquare
+} from 'lucide-react';
 
-export function PatientPortalPage() {
-  const {
-    appointments,
-    loading,
-    errorToast,
-    successToast,
-    realtimeToast,
-    createAppointment,
-    cancelAppointment,
-  } = usePatientAppointments();
+interface PatientPortalPageProps {
+  onNavigate: (path: string) => void;
+}
 
-  // Estado del formulario de reserva rápida
-  const [selectedDate, setSelectedDate] = useState<string>('');
+export const PatientPortalPage: React.FC<PatientPortalPageProps> = ({ onNavigate }) => {
+  const { tenant } = useAuth();
+  const { t } = useI18n();
+
+  const [professionals, setProfessionals] = useState<ProfessionalWithDetails[]>([]);
+  const [selectedSpecialty, setSelectedSpecialty] = useState<string>('all');
+  const [selectedProfId, setSelectedProfId] = useState<string>('');
+  const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0]);
   const [selectedTime, setSelectedTime] = useState<string>('10:00');
+  const [bookingReason, setBookingReason] = useState<string>('Evaluación inicial y diagnóstico funcional');
+  const [patientName, setPatientName] = useState<string>('Camila Soto');
+  const [patientEmail, setPatientEmail] = useState<string>('camila.soto@email.com');
+  const [patientPhone, setPatientPhone] = useState<string>('+57 300 123 4567');
+  const [patientAppointments, setPatientAppointments] = useState<Appointment[]>([]);
+  const [searchQuery, setSearchQuery] = useState<string>('');
 
-  const handleBookSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedDate) {
-      alert('Por favor selecciona una fecha para la cita.');
-      return;
+  // Modal State
+  const [modalProfessional, setModalProfessional] = useState<ProfessionalWithDetails | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+
+  // Booking Success State with Calendar Links
+  const [lastBookedAppointment, setLastBookedAppointment] = useState<Appointment | null>(null);
+  const [bookedSuccess, setBookedSuccess] = useState<boolean>(false);
+
+  useEffect(() => {
+    loadProfessionals();
+    loadAppointments();
+  }, []);
+
+  const loadProfessionals = async () => {
+    const profs = await fetchProfessionalsWithJoinedDetails({ tenantId: tenant?.id });
+    setProfessionals(profs);
+    if (profs.length > 0 && !selectedProfId) {
+      setSelectedProfId(profs[0].id);
     }
+  };
 
-    const start = new Date(`${selectedDate}T${selectedTime}:00`);
-    const end = new Date(start.getTime() + 45 * 60 * 1000); // 45 minutos de consulta
+  const loadAppointments = async () => {
+    const { data } = await supabase.from('appointments').select('*').order('start_time', { ascending: true });
+    if (data) {
+      setPatientAppointments(data);
+    }
+  };
 
-    createAppointment({
-      startTime: start.toISOString(),
-      endTime: end.toISOString(),
-    });
+  const filteredProfessionals = professionals.filter((p) => {
+    const matchSpecialty = selectedSpecialty === 'all' || p.role === selectedSpecialty;
+    const matchSearch =
+      !searchQuery.trim() ||
+      p.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (p.specialty && p.specialty.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (p.profile?.alma_mater && p.profile.alma_mater.toLowerCase().includes(searchQuery.toLowerCase()));
+    return matchSpecialty && matchSearch;
+  });
+
+  const selectedProfessional = professionals.find((p) => p.id === selectedProfId) || professionals[0];
+
+  const handleOpenDetails = (prof: ProfessionalWithDetails) => {
+    setModalProfessional(prof);
+    setIsModalOpen(true);
+  };
+
+  const handleSelectFromModal = (profId: string) => {
+    setSelectedProfId(profId);
+    // Smoothly scroll to booking form
+    const bookingFormEl = document.getElementById('booking-section');
+    if (bookingFormEl) {
+      bookingFormEl.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  const handleBookAppointment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const prof = professionals.find((p) => p.id === selectedProfId) || professionals[0];
+    const startIso = `${selectedDate}T${selectedTime}:00Z`;
+    const endIso = `${selectedDate}T${selectedTime.split(':')[0]}:45:00Z`;
+
+    const newAppt: Partial<Appointment> = {
+      tenant_id: tenant?.id || 'tenant_kine_001',
+      professional_id: selectedProfId,
+      patient_id: 'pat_camila_01',
+      start_time: startIso,
+      end_time: endIso,
+      status: 'booked',
+      reason: bookingReason,
+      professional_type: prof?.role as any,
+      patient: {
+        full_name: patientName,
+        email: patientEmail,
+        phone: patientPhone,
+      },
+      professional: {
+        full_name: prof?.full_name || 'Especialista',
+        email: prof?.email || 'prof@kinesys.health',
+        role: prof?.role || 'fisioterapeuta',
+        specialty: prof?.specialty || 'Kinesiología',
+      },
+    };
+
+    const { data } = await supabase.from('appointments').insert(newAppt);
+    const created = Array.isArray(data) ? data[0] : (newAppt as Appointment);
+    setLastBookedAppointment(created);
+    setBookedSuccess(true);
+    loadAppointments();
   };
 
   return (
-    <div className="min-h-screen flex bg-background font-sans text-on-background overflow-hidden">
-      <SideNavBar />
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col md:flex-row text-slate-800 dark:text-slate-200">
+      <SideNavBar currentPath="/portal-paciente" onNavigate={onNavigate} />
 
-      <main className="flex-1 ml-0 md:ml-72 flex flex-col h-screen relative overflow-hidden">
-        <TopNavBar />
+      <main className="flex-1 md:ml-72 pt-16 pb-20 px-4 sm:px-8 max-w-7xl mx-auto w-full space-y-8">
+        <TopNavBar currentPath="/portal-paciente" onNavigate={onNavigate} />
 
-        {/* Toast Realtime Flotante En Vivo (Stitch Glassmorphism) */}
-        {realtimeToast && (
-          <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-glass-surface backdrop-blur-md text-primary border border-primary/30 px-6 py-3 rounded-full shadow-2xl flex items-center gap-3 animate-pulse">
-            <span className="material-symbols-outlined text-xl">sensors</span>
-            <span className="text-xs font-bold">{realtimeToast.message}</span>
-          </div>
-        )}
-
-        {/* Notificaciones Toast Flotantes Estilo Stitch */}
-        {errorToast && (
-          <div className="fixed top-20 right-6 z-50 bg-error-container text-on-error-container border border-error/30 px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-3 animate-bounce">
-            <span className="material-symbols-outlined text-xl">block</span>
-            <span className="text-xs font-bold">{errorToast}</span>
-          </div>
-        )}
-
-        {successToast && (
-          <div className="fixed top-20 right-6 z-50 bg-secondary-container text-on-secondary-container border border-secondary/30 px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-3">
-            <span className="material-symbols-outlined text-xl">check_circle</span>
-            <span className="text-xs font-bold">{successToast}</span>
-          </div>
-        )}
-
-        {/* Canvas Workspace */}
-        <div className="mt-[72px] flex-1 flex flex-col lg:flex-row overflow-hidden p-6 gap-6 bg-surface-container-low">
-          {/* Columna Izquierda: Calendario & Lista de Citas */}
-          <div className="flex-1 bg-surface-container-lowest rounded-2xl shadow-[0_20px_20px_-4px_rgba(2,132,199,0.08)] border border-outline-variant/30 flex flex-col overflow-hidden">
-            <div className="p-5 border-b border-outline-variant/30 flex justify-between items-center bg-surface-container-lowest/50 backdrop-blur-sm z-10">
-              <div>
-                <h2 className="text-2xl font-extrabold text-on-surface">Mis Citas & Agendamiento</h2>
-                <p className="text-xs text-on-surface-variant">Protección Financiera Regla de 24h Activa</p>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-bold">
-                  {appointments.filter((a) => a.status !== 'cancelled').length} Activas
+        {/* Portal Hero Banner */}
+        <div className="pt-2">
+          <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-indigo-900 via-slate-900 to-indigo-950 text-white p-6 sm:p-8 shadow-lg border border-indigo-800/40">
+            <div className="relative z-10 max-w-3xl space-y-3">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="px-3 py-1 rounded-full bg-indigo-500/30 border border-indigo-400/30 text-indigo-200 text-xs font-black uppercase tracking-wider">
+                  {t('portal.title', 'Portal del Paciente')}
+                </span>
+                <span className="text-xs font-semibold text-indigo-300">
+                  {tenant?.name || 'Clínica KineSys Salud Integral'}
                 </span>
               </div>
+              <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
+                Nuestros Especialistas, Hojas de Vida & Reseñas
+              </h1>
+              <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-normal">
+                Conoce la trayectoria académica, certificaciones y valoraciones de nuestros profesionales de la salud. Consulta testimonios 100% moderados y agenda tu cita en línea.
+              </p>
             </div>
 
-            {/* Lista de Citas con Evaluación Reactiva de la Regla de 24h */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-4">
-              <h3 className="text-xs font-bold text-primary uppercase tracking-wider mb-2">Próximos Turnos</h3>
+            {/* Subtle background decoration */}
+            <div className="absolute right-0 bottom-0 opacity-10 pointer-events-none translate-x-8 translate-y-8">
+              <Sparkles className="w-64 h-64 text-indigo-300" />
+            </div>
+          </div>
+        </div>
 
-              {appointments.length === 0 ? (
-                <p className="text-xs text-on-surface-variant italic">No tienes citas registradas.</p>
-              ) : (
-                appointments.map((appt) => {
-                  const rule = check24HourRule(appt.startTime);
-                  const isCancelled = appt.status === 'cancelled';
-                  const dateFormatted = new Date(appt.startTime).toLocaleString('es-CO', {
-                    weekday: 'short',
-                    month: 'short',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  });
+        {/* Section 1: Professional Profiles Catalog with Reviews and Filters */}
+        <section className="space-y-5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h2 className="text-lg font-black text-slate-900 dark:text-white flex items-center gap-2">
+                <Users className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                <span>Equipo Clínico Disponible</span>
+              </h2>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                Haz clic en cualquier tarjeta para ver su biografía completa, universidad y opiniones de pacientes.
+              </p>
+            </div>
 
-                  return (
-                    <div
-                      key={appt.id}
-                      className={`p-4 rounded-xl border transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 ${
-                        isCancelled
-                          ? 'bg-surface-container-low/40 border-outline-variant/20 opacity-60'
-                          : 'bg-surface-container-lowest border-outline-variant/30 clinical-shadow'
-                      }`}
-                    >
-                      <div className="flex items-center gap-4">
-                        <div
-                          className={`w-12 h-12 rounded-xl flex items-center justify-center text-lg ${
-                            isCancelled
-                              ? 'bg-surface-variant text-on-surface-variant'
-                              : rule.canCancel
-                              ? 'bg-primary-container/20 text-primary'
-                              : 'bg-error-container/40 text-error'
-                          }`}
-                        >
-                          <span className="material-symbols-outlined">
-                            {isCancelled ? 'cancel' : rule.canCancel ? 'event_available' : 'lock_clock'}
-                          </span>
-                        </div>
-
-                        <div>
-                          <p className="text-sm font-bold text-on-surface">{dateFormatted}</p>
-                          <p className="text-xs text-on-surface-variant">Consulta Fisioterapia / Evaluación</p>
-                          {!isCancelled && (
-                            <p className="text-[10px] text-outline mt-0.5">
-                              Tiempo restante: {rule.hoursRemaining}h
-                            </p>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Botón & Badges de Estado con Regla de 24h */}
-                      <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
-                        {isCancelled ? (
-                          <span className="px-3 py-1 bg-surface-variant text-on-surface-variant text-xs font-bold rounded-full">
-                            Cancelada
-                          </span>
-                        ) : rule.canCancel ? (
-                          <button
-                            onClick={() => cancelAppointment(appt.id, appt.startTime)}
-                            disabled={loading}
-                            className="bg-surface-container hover:bg-error-container/40 text-error font-semibold text-xs px-4 py-2 rounded-xl border border-error/30 transition cursor-pointer"
-                          >
-                            Cancelar Cita (Libre)
-                          </button>
-                        ) : (
-                          <div className="flex items-center gap-2">
-                            <span className="bg-error-container text-on-error-container font-bold text-[11px] px-3 py-1.5 rounded-xl border border-error/20 flex items-center gap-1 shadow-sm">
-                              <span className="material-symbols-outlined text-sm">lock</span>
-                              Bloqueado: Regla 24h. Contacte a la clínica
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })
-              )}
+            {/* Search Input */}
+            <div className="relative w-full sm:w-72">
+              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Buscar por nombre o universidad..."
+                className="w-full pl-9 pr-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-hidden focus:ring-2 focus:ring-indigo-500"
+              />
             </div>
           </div>
 
-          {/* Columna Derecha: Formulario de Reserva Rápida (Quick Consult Simulator) */}
-          <div className="w-full lg:w-[380px] flex flex-col gap-6">
-            <div className="bg-surface-container-lowest rounded-2xl shadow-[0_20px_20px_-4px_rgba(2,132,199,0.08)] border border-outline-variant/30 p-6">
-              <div className="flex items-center gap-3 mb-4 pb-3 border-b border-outline-variant/20">
-                <div className="w-10 h-10 rounded-xl bg-secondary-container text-secondary flex items-center justify-center">
-                  <span className="material-symbols-outlined">add_task</span>
-                </div>
-                <div>
-                  <h3 className="text-sm font-bold text-on-surface">Reserva Rápida de Cita</h3>
-                  <p className="text-[11px] text-on-surface-variant">Agendamiento Instantáneo 1-Tap</p>
-                </div>
+          {/* Specialty Filter Buttons */}
+          <div className="flex flex-wrap items-center gap-2">
+            {[
+              { id: 'all', label: 'Todas las Especialidades' },
+              { id: 'fisioterapeuta', label: 'Fisioterapia & Kinesiología' },
+              { id: 'nutricionista', label: 'Nutrición Clínica & Deportiva' },
+              { id: 'medico_general', label: 'Medicina General' },
+            ].map((spec) => (
+              <button
+                key={spec.id}
+                type="button"
+                onClick={() => setSelectedSpecialty(spec.id)}
+                className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  selectedSpecialty === spec.id
+                    ? 'bg-indigo-600 text-white shadow-xs'
+                    : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800 hover:border-indigo-300 dark:hover:border-indigo-700'
+                }`}
+              >
+                {spec.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Professionals Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {filteredProfessionals.map((prof) => (
+              <ProfessionalCard
+                key={prof.id}
+                professional={prof}
+                isSelected={selectedProfId === prof.id}
+                onSelect={(id) => {
+                  setSelectedProfId(id);
+                  handleSelectFromModal(id);
+                }}
+                onOpenDetails={handleOpenDetails}
+              />
+            ))}
+          </div>
+        </section>
+
+        {/* Section 2: Booking Form & Active Professional Summary */}
+        <section id="booking-section" className="grid grid-cols-1 lg:grid-cols-3 gap-8 pt-4 border-t border-slate-200 dark:border-slate-800">
+          {/* Left / Center (2 cols): Booking Form */}
+          <div className="lg:col-span-2 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 sm:p-8 space-y-6 shadow-sm">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
+              <div>
+                <h2 className="text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+                  <CalendarPlus className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                  <span>{t('portal.book_new_appointment', 'Agendar Nueva Consulta')}</span>
+                </h2>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  Selecciona la fecha, hora y confirma tus datos de contacto para la cita.
+                </p>
               </div>
 
-              <form onSubmit={handleBookSubmit} className="space-y-4">
+              {selectedProfessional && (
+                <button
+                  type="button"
+                  onClick={() => handleOpenDetails(selectedProfessional)}
+                  className="hidden sm:inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline cursor-pointer"
+                >
+                  <Award className="w-4 h-4" />
+                  <span>Ver Hoja de Vida</span>
+                </button>
+              )}
+            </div>
+
+            {/* Selected Professional Preview Banner */}
+            {selectedProfessional && (
+              <div className="p-4 rounded-2xl bg-indigo-50/60 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-900/50 flex items-center justify-between gap-4">
+                <div className="flex items-center gap-3.5">
+                  <img
+                    src={selectedProfessional.avatar_url || 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=150'}
+                    alt={selectedProfessional.full_name}
+                    className="w-12 h-12 rounded-xl object-cover ring-2 ring-indigo-500/20"
+                  />
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <p className="text-xs font-extrabold text-slate-900 dark:text-white">
+                        {selectedProfessional.full_name}
+                      </p>
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-indigo-200/60 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200">
+                        {selectedProfessional.specialty || selectedProfessional.role}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                      🎓 {selectedProfessional.profile?.alma_mater || 'Universidad de Ciencias de la Salud'} • ⭐ {selectedProfessional.rating_average || 5.0} ({selectedProfessional.reviews_count || 0} reseñas)
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => handleOpenDetails(selectedProfessional)}
+                  className="shrink-0 px-3 py-1.5 rounded-xl bg-white dark:bg-slate-800 border border-indigo-200 dark:border-indigo-800 text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/40 transition-colors cursor-pointer"
+                >
+                  Ver Reseñas
+                </button>
+              </div>
+            )}
+
+            {/* Booking Form */}
+            <form onSubmit={handleBookAppointment} className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
                 <div>
-                  <label className="block text-xs font-semibold text-on-surface-variant mb-1">
-                    Fecha de la Cita
+                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+                    {t('calendar.date', 'Fecha de la Consulta')}
                   </label>
                   <input
                     type="date"
                     required
                     value={selectedDate}
                     onChange={(e) => setSelectedDate(e.target.value)}
-                    className="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl px-3 py-2 text-xs text-on-surface focus:outline-none focus:border-primary font-medium"
+                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2.5 text-xs text-slate-900 dark:text-white"
                   />
                 </div>
-
                 <div>
-                  <label className="block text-xs font-semibold text-on-surface-variant mb-1">
-                    Hora de Atención
+                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+                    {t('portal.select_time', 'Horario Disponible')}
                   </label>
                   <select
                     value={selectedTime}
                     onChange={(e) => setSelectedTime(e.target.value)}
-                    className="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl px-3 py-2 text-xs text-on-surface focus:outline-none focus:border-primary font-medium"
+                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2.5 text-xs text-slate-900 dark:text-white"
                   >
-                    <option value="08:00">08:00 AM</option>
-                    <option value="10:00">10:00 AM</option>
-                    <option value="14:00">02:00 PM</option>
-                    <option value="16:00">04:00 PM</option>
+                    <option value="08:30">08:30 - 09:15</option>
+                    <option value="09:30">09:30 - 10:15</option>
+                    <option value="10:00">10:00 - 10:45</option>
+                    <option value="11:30">11:30 - 12:15</option>
+                    <option value="14:00">14:00 - 14:45</option>
+                    <option value="15:30">15:30 - 16:15</option>
+                    <option value="16:30">16:30 - 17:15</option>
                   </select>
                 </div>
+              </div>
 
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full bg-primary hover:bg-primary-container text-on-primary font-bold text-xs py-3 rounded-xl transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
-                >
-                  {loading ? (
-                    <span className="material-symbols-outlined animate-spin text-sm">sync</span>
-                  ) : (
-                    <span className="material-symbols-outlined text-sm">calendar_add_on</span>
-                  )}
-                  {loading ? 'Procesando...' : 'Confirmar Reserva'}
-                </button>
-              </form>
+              <div>
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                  {t('portal.reason', 'Motivo de Consulta / Síntomas Principales')}
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={bookingReason}
+                  onChange={(e) => setBookingReason(e.target.value)}
+                  placeholder="Ej: Dolor lumbar irradiado, evaluación nutricional, control médico..."
+                  className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2.5 text-xs text-slate-900 dark:text-white"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
+                    {t('patients.name', 'Nombre del Paciente')}
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={patientName}
+                    onChange={(e) => setPatientName(e.target.value)}
+                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2.5 text-xs text-slate-900 dark:text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
+                    {t('patients.email', 'Email de Confirmación')}
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    value={patientEmail}
+                    onChange={(e) => setPatientEmail(e.target.value)}
+                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2.5 text-xs text-slate-900 dark:text-white"
+                  />
+                </div>
+                <div>
+                  <PhoneInputWithCountry
+                    label={t('patients.phone', 'Teléfono de Contacto')}
+                    value={patientPhone}
+                    onChange={(fullNumber) => setPatientPhone(fullNumber)}
+                    placeholder="300 123 4567"
+                    defaultCountryCode="CO"
+                  />
+                </div>
+              </div>
+
+              {/* Booking Success Banner with Instant Calendar Integration */}
+              {bookedSuccess && lastBookedAppointment && (
+                <div className="p-4 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800 rounded-2xl space-y-3 animate-in fade-in">
+                  <div className="flex items-center gap-2 text-emerald-800 dark:text-emerald-300 font-bold text-xs">
+                    <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                    <span>¡Cita confirmada exitosamente con {selectedProfessional?.full_name}!</span>
+                  </div>
+
+                  <p className="text-xs text-emerald-700 dark:text-emerald-400">
+                    Fecha: <strong>{selectedDate}</strong> a las <strong>{selectedTime} hrs</strong>. Hemos enviado el comprobante a <strong>{patientEmail}</strong>.
+                  </p>
+
+                  {/* Calendar Sync Buttons */}
+                  <div className="pt-2 border-t border-emerald-200 dark:border-emerald-800/60 flex flex-wrap items-center gap-2">
+                    <span className="text-[11px] font-bold text-emerald-900 dark:text-emerald-200">
+                      Sincronizar con tu calendario:
+                    </span>
+                    {(() => {
+                      const calLinks = generateCalendarLinksFromAppointment(lastBookedAppointment, {
+                        clinicName: tenant?.name || 'Clínica KineSys',
+                        clinicAddress: tenant?.address || 'Sede Principal',
+                      });
+                      return (
+                        <div className="flex flex-wrap items-center gap-2">
+                          <a
+                            href={calLinks.google}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 text-xs font-semibold hover:bg-slate-50 transition-colors"
+                          >
+                            <Calendar className="w-3.5 h-3.5 text-blue-600" />
+                            <span>Google Calendar</span>
+                          </a>
+                          <a
+                            href={calLinks.outlook}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 text-xs font-semibold hover:bg-slate-50 transition-colors"
+                          >
+                            <ExternalLink className="w-3.5 h-3.5 text-sky-600" />
+                            <span>Outlook / Microsoft</span>
+                          </a>
+                          <a
+                            href={calLinks.icsDataUrl}
+                            download="cita_kinesys.ics"
+                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 text-xs font-semibold hover:bg-slate-50 transition-colors"
+                          >
+                            <span>Descargar .ICS (Apple / iCal)</span>
+                          </a>
+                        </div>
+                      );
+                    })()}
+                  </div>
+                </div>
+              )}
+
+              <button
+                id="btn-submit-booking"
+                type="submit"
+                className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl text-xs font-extrabold transition-all shadow-md shadow-indigo-600/20 cursor-pointer flex items-center justify-center gap-2"
+              >
+                <CalendarPlus className="w-4 h-4" />
+                <span>{t('portal.confirm_booking', 'Confirmar Reserva de Cita')}</span>
+              </button>
+            </form>
+          </div>
+
+          {/* Right Column: Upcoming Sessions & Patient Support */}
+          <div className="space-y-5">
+            {/* Upcoming Appointments Card */}
+            <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 space-y-4 shadow-sm">
+              <h3 className="text-sm font-extrabold text-slate-900 dark:text-white flex items-center justify-between">
+                <span>{t('portal.my_appointments', 'Mis Citas & Historial')}</span>
+                <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400">
+                  {patientAppointments.length} citas
+                </span>
+              </h3>
+
+              <div className="space-y-3">
+                {patientAppointments.slice(0, 4).map((appt) => (
+                  <div
+                    key={appt.id}
+                    className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/70 dark:border-slate-800 text-xs space-y-1.5"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-slate-900 dark:text-white">
+                        {appt.reason || t('calendar.consultation', 'Consulta')}
+                      </span>
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 uppercase">
+                        {appt.status}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-slate-600 dark:text-slate-400 font-semibold">
+                      👨‍⚕️ {appt.professional?.full_name || 'Especialista KineSys'}
+                    </p>
+                    <div className="flex items-center justify-between text-[10px] text-slate-500 pt-1">
+                      <div className="flex items-center gap-1.5">
+                        <Calendar className="w-3 h-3 text-indigo-500" />
+                        <span>
+                          {new Date(appt.start_time).toLocaleString('es-ES', {
+                            month: 'short',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
 
-            {/* Tarjeta Informativa de la Regla de 24h */}
-            <div className="bg-surface-container-low/70 rounded-2xl border border-outline-variant/30 p-5 space-y-2">
-              <div className="flex items-center gap-2 text-primary font-bold text-xs">
-                <span className="material-symbols-outlined text-base">verified_user</span>
-                <span>Política de Protección 24h</span>
+            {/* Clinic Info Box */}
+            <div className="p-5 rounded-3xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs space-y-2.5">
+              <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400">
+                <ShieldCheck className="w-4 h-4" />
+                <p className="font-bold">{t('portal.patient_support', 'Atención y Seguridad del Paciente')}</p>
               </div>
-              <p className="text-[11px] text-on-surface-variant leading-relaxed">
-                Las modificaciones y cancelaciones realizadas con más de 24 horas de antelación son 100% gratuitas y automáticas. Dentro de las 24h previas, el sistema bloquea la acción para proteger la agenda profesional.
+              <p className="text-slate-600 dark:text-slate-400 text-[11px] leading-relaxed">
+                {tenant?.name || 'Clínica KineSys'} • {tenant?.address || 'Av. El Poblado # 5A-110'}
+              </p>
+              <p className="text-[11px] text-slate-500 leading-relaxed">
+                {t('portal.cancellation_policy', 'Cancelaciones permitidas hasta 24 horas antes sin recargo.')}
               </p>
             </div>
           </div>
-        </div>
+        </section>
       </main>
+
+      {/* Professional Profile & Reviews Modal */}
+      {modalProfessional && (
+        <ProfessionalProfileModal
+          professional={modalProfessional}
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onSelectForBooking={handleSelectFromModal}
+          onReviewAdded={() => {
+            loadProfessionals();
+          }}
+        />
+      )}
+
+      <RoleSwitcherBanner onNavigate={onNavigate} currentPath="/portal-paciente" />
     </div>
   );
-}
+};

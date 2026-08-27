@@ -18,7 +18,7 @@ import type {
   PainPoint,
   PainType,
   RegionSelectionInput,
-} from '../types/painmap.types';
+} from '../../../types/painmap.types';
 
 interface UsePainCanvasEngineReturn extends PainCanvasState {
   /** Select a region on the canvas for pain annotation */
